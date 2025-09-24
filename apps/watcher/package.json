@@ -1,0 +1,36 @@
+{
+  "name": "watcher",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "dotenv": "^17.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.5.4",
+    "@whisper/shared": "workspace:*",
+    "axios": "^1.12.2",
+    "chokidar": "^4.0.3",
+    "oclif": "^4.22.24",
+    "ora": "^9.0.0"
+  },
+  "bin": {
+    "whisper-watcher": "./bin/run.js"
+  },
+  "oclif": {
+    "bin": "whisper-watcher",
+    "commands": "./dist/commands",
+    "dirname": "whisper-watcher",
+    "topicSeparator": " "
+  }
+}
