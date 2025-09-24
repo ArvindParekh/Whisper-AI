@@ -5,7 +5,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "agents-backend",
-	"main": "src/index.ts",
+	"main": "src/agent-worker.ts",
 	"compatibility_date": "2025-09-24",
 	"migrations": [
 		{
@@ -14,15 +14,33 @@
 			],
 			"tag": "v1"
 		}
+		,
+		{
+			"new_sqlite_classes": [
+				"WhisperAgent"
+			],
+			"tag": "v2"
+		}
 	],
 	"durable_objects": {
 		"bindings": [
 			{
 				"class_name": "SessionsDurableObject",
 				"name": "SESSIONS"
+			},
+			{
+				"class_name": "WhisperAgent",
+				"name": "AGENT"
 			}
 		]
 	},
+	"ai": {
+		"binding": "AI"
+	},
+	// "realtime": {
+	// 	"enabled": true
+	// },
+	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
 		"enabled": true
 	}
