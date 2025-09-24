@@ -58,7 +58,7 @@ export default class Monitor extends Command {
             "utf8"
          );
          try {
-            const response = await axios.post<syncFileResponseBody, AxiosResponse<syncFileResponseBody>, syncFileRequestBody>(`${workerUrl}`, {
+            const response = await axios.post<syncFileResponseBody, AxiosResponse<syncFileResponseBody>, syncFileRequestBody>(`${workerUrl}/sync`, {
                filePath,
                fileContent,
                sessionId,
