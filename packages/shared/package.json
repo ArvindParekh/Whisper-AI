@@ -2,6 +2,11 @@
   "name": "@whisper/shared",
   "version": "1.0.0",
   "description": "",
+    "typesVersions": {
+    "*": {
+      "types/*": ["src/types/*"]
+    }
+  },
   "exports": {
     "./types/watcher": "./src/types/watcher.ts"
   },
