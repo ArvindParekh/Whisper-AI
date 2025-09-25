@@ -1,5 +1,5 @@
-import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from "@whisper/shared/types/watcher";
-import { DurableObject } from "cloudflare:workers";
+import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from '@whisper/shared/types/watcher';
+import { DurableObject } from 'cloudflare:workers';
 import { WhisperAgent } from './realtime-agent';
 
 /**
@@ -34,12 +34,12 @@ export class SessionsDurableObject extends DurableObject<Env> {
 		if (!this.sessionState) {
 			// Try to load existing state
 			const stored = await this.ctx.storage.get<SessionState>('sessionState');
-			
+
 			if (stored) {
 				this.sessionState = {
 					...stored,
 					files: new Map(Object.entries(stored.files || {})),
-					lastActivity: Date.now()
+					lastActivity: Date.now(),
 				};
 			} else {
 				// Create new session state
@@ -48,11 +48,11 @@ export class SessionsDurableObject extends DurableObject<Env> {
 					conversationHistory: [],
 					sessionId,
 					createdAt: Date.now(),
-					lastActivity: Date.now()
+					lastActivity: Date.now(),
 				};
 			}
 		}
-		
+
 		// Update last activity
 		this.sessionState.lastActivity = Date.now();
 		return this.sessionState;
@@ -65,7 +65,7 @@ export class SessionsDurableObject extends DurableObject<Env> {
 		if (this.sessionState) {
 			const stateToSave = {
 				...this.sessionState,
-				files: Object.fromEntries(this.sessionState.files)
+				files: Object.fromEntries(this.sessionState.files),
 			};
 			await this.ctx.storage.put('sessionState', stateToSave);
 		}
@@ -74,7 +74,13 @@ export class SessionsDurableObject extends DurableObject<Env> {
 	/**
 	 * Synchronize file changes from the local watcher
 	 */
-	async syncFile(filePath: string, fileContent: string, sessionId: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
+	async syncFile(
+		filePath: string,
+		fileContent: string,
+		sessionId: string,
+		type: syncFileType,
+		timestamp: number,
+	): Promise<syncFileResponseBody> {
 		try {
 			const state = await this.ensureSessionState(sessionId);
 
@@ -94,12 +100,12 @@ export class SessionsDurableObject extends DurableObject<Env> {
 
 			return {
 				success: true,
-				message: `File ${type} operation completed for ${filePath}`
+				message: `File ${type} operation completed for ${filePath}`,
 			};
 		} catch (error) {
 			return {
 				success: false,
-				message: `Failed to sync file: ${error instanceof Error ? error.message : 'Unknown error'}`
+				message: `Failed to sync file: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			};
 		}
 	}
@@ -110,22 +116,27 @@ export class SessionsDurableObject extends DurableObject<Env> {
 	async getProjectContext(sessionId: string): Promise<ProjectContext> {
 		const state = await this.ensureSessionState(sessionId);
 		return {
-			files: Object.fromEntries(state.files)
+			files: Object.fromEntries(state.files),
 		};
 	}
 
 	/**
 	 * Add a message to the conversation history
 	 */
-	async addConversationMessage(sessionId: string, type: 'user' | 'assistant', content: string, metadata?: Record<string, any>): Promise<void> {
+	async addConversationMessage(
+		sessionId: string,
+		type: 'user' | 'assistant',
+		content: string,
+		metadata?: Record<string, any>,
+	): Promise<void> {
 		const state = await this.ensureSessionState(sessionId);
-		
+
 		const message: ConversationMessage = {
 			id: crypto.randomUUID(),
 			type,
 			content,
 			timestamp: Date.now(),
-			...(metadata && { metadata })
+			...(metadata && { metadata }),
 		};
 
 		state.conversationHistory.push(message);
@@ -138,11 +149,11 @@ export class SessionsDurableObject extends DurableObject<Env> {
 	async getConversationHistory(sessionId: string, limit?: number): Promise<ConversationMessage[]> {
 		const state = await this.ensureSessionState(sessionId);
 		const history = state.conversationHistory;
-		
+
 		if (limit && limit > 0) {
 			return history.slice(-limit);
 		}
-		
+
 		return history;
 	}
 
@@ -151,15 +162,24 @@ export class SessionsDurableObject extends DurableObject<Env> {
 	 */
 	async getSessionStats(sessionId: string): Promise<SessionStats> {
 		const state = await this.ensureSessionState(sessionId);
-		
+
 		return {
 			filesCount: state.files.size,
 			conversationLength: state.conversationHistory.length,
 			createdAt: state.createdAt,
-			lastActivity: state.lastActivity
+			lastActivity: state.lastActivity,
 		};
 	}
 
+	/*
+	
+		agentId: string,
+		meetingId: string,
+		authToken: string,
+		workerUrlHost: string,
+		accountId: string,
+		apiToken: string,
+	*/
 	/**
 	 * Process a user message via the WhisperAgent pipeline and return AI response
 	 */
@@ -167,8 +187,8 @@ export class SessionsDurableObject extends DurableObject<Env> {
 		// Ensure state exists and agent is initialized
 		await this.ensureSessionState(sessionId);
 		if (!this.whisperAgent) {
-			this.whisperAgent = new WhisperAgent(this.ctx, this.env);
-			await this.whisperAgent.initialize(sessionId);
+			this.whisperAgent = new WhisperAgent(this.ctx, this.env, sessionId);
+			await this.whisperAgent.init(sessionId, meetingId, authToken, workerUrlHost, accountId, apiToken);
 		}
 
 		return await this.whisperAgent.onMessage(content);
@@ -188,15 +208,15 @@ export class SessionsDurableObject extends DurableObject<Env> {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 		const sessionId = url.searchParams.get('sessionId') || request.headers.get('Session-ID');
-		
+
 		if (!sessionId) {
 			return new Response('Session ID is required', { status: 400 });
 		}
 
 		// Initialize WhisperAgent if not already done
 		if (!this.whisperAgent) {
-			this.whisperAgent = new WhisperAgent(this.ctx, this.env);
-			await this.whisperAgent.initialize(sessionId);
+			this.whisperAgent = new WhisperAgent(this.ctx, this.env, sessionId);
+			await this.whisperAgent.init(sessionId);
 		}
 
 		// Handle WebSocket upgrade for real-time communication
@@ -217,18 +237,22 @@ export class SessionsDurableObject extends DurableObject<Env> {
 					const data = JSON.parse(event.data);
 					if (data.type === 'message' && data.content) {
 						const response = await this.whisperAgent!.onMessage(data.content);
-						server.send(JSON.stringify({
-							type: 'response',
-							content: response,
-							timestamp: Date.now()
-						}));
+						server.send(
+							JSON.stringify({
+								type: 'response',
+								content: response,
+								timestamp: Date.now(),
+							}),
+						);
 					}
 				} catch (error) {
 					console.error('Error handling WebSocket message:', error);
-					server.send(JSON.stringify({
-						type: 'error',
-						message: 'Failed to process message'
-					}));
+					server.send(
+						JSON.stringify({
+							type: 'error',
+							message: 'Failed to process message',
+						}),
+					);
 				}
 			});
 
