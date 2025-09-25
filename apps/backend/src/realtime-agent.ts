@@ -1,4 +1,4 @@
-import { RealtimeAgent, TextComponent } from '@cloudflare/realtime-agents';
+import { RealtimeAgent, TextComponent, RealtimeKitTransport, DeepgramSTT, ElevenLabsTTS } from '@cloudflare/realtime-agents';
 import type {
     syncFileType,
     syncFileResponseBody,
@@ -124,16 +124,43 @@ export class WhisperAgent extends RealtimeAgent<Env> {
 	 * Accepts (agentId, meetingId, authToken, workerUrlHost, accountId, apiToken)
 	 */
 	async init(agentId: string, meetingId: string, authToken: string, workerUrlHost: string, accountId: string, apiToken: string): Promise<void> {
-		// Placeholder: compose the voice pipeline when providers are available.
-		// Example shape from docs:
-		// const transport = new RealtimeKitTransport(meetingId, authToken);
-		// await this.initPipeline([
-		//   transport,
-		//   new DeepgramSTT(this.env.DEEPGRAM_API_KEY),
-		//   new WhisperTextProcessor(this.env),
-		//   new ElevenLabsTTS(this.env.ELEVENLABS_API_KEY),
-		//   transport,
-		// ], agentId, workerUrlHost, accountId, apiToken);
+		// Construct your text processor for generating responses to text
+		const textProcessor = new WhisperTextProcessor(this.env);
+		
+		// Construct a Meeting object to join the RTK meeting
+		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
+
+		// Construct a pipeline to take in meeting audio, transcribe it using
+		// Deepgram, and pass our generated responses through ElevenLabs to
+		// be spoken in the meeting
+		await this.initPipeline(
+			[
+				rtkTransport,
+				new DeepgramSTT(this.env.DEEPGRAM_API_KEY),
+				textProcessor,
+				new ElevenLabsTTS(this.env.ELEVENLABS_API_KEY),
+				rtkTransport,
+			],
+			agentId,
+			workerUrlHost,
+			accountId,
+			apiToken,
+		);
+
+		const { meeting } = rtkTransport;
+
+		// The RTK meeting object is accessible to us, so we can register handlers
+		// on various events like participant joins/leaves, chat, etc.
+		// This is optional
+		meeting.participants.joined.on('participantJoined', (participant) => {
+			textProcessor.speak(`Participant Joined ${participant.name}`);
+		});
+		meeting.participants.joined.on('participantLeft', (participant) => {
+			textProcessor.speak(`Participant Left ${participant.name}`);
+		});
+
+		// Make sure to actually join the meeting after registering all handlers
+		await meeting.join();
 	}
 
 	async deinit(): Promise<void> {

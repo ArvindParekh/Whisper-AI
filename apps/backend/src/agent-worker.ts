@@ -60,8 +60,9 @@ export default {
 
 			// Realtime Agents internal plumbing passthrough
 			if (path.startsWith('/agentsInternal')) {
-				const id = (env as any).AGENT.idFromName(sessionId || 'default');
-				const stub = (env as any).AGENT.get(id);
+				const agentId = sessionId || 'default';
+				const id = env.AGENT.idFromName(agentId);
+				const stub = env.AGENT.get(id);
 				return stub.fetch(request);
 			}
 
@@ -170,15 +171,15 @@ export default {
 					return new Response('Unauthorized', { status: 401, headers: corsHeaders });
 				}
 				const authToken = authHeader.split(' ')[1] || '';
-				const id = (env as any).AGENT.idFromName(sessionId);
-				const stub = (env as any).AGENT.get(id);
+				const id = env.AGENT.idFromName(sessionId);
+				const stub = env.AGENT.get(id);
 				await stub.init(
 					sessionId, // agentId
 					sessionId, // meetingId
 					authToken,
 					new URL(request.url).host,
-					((env as any).ACCOUNT_ID as string) || '',
-					((env as any).API_TOKEN as string) || ''
+					env.CF_ACCOUNT_ID || '',
+					env.CF_API_TOKEN || ''
 				);
 				return new Response(null, { status: 200, headers: corsHeaders });
 			}
@@ -188,8 +189,8 @@ export default {
 				if (!sessionId) {
 					return new Response('Session ID required', { status: 400, headers: corsHeaders });
 				}
-				const id = (env as any).AGENT.idFromName(sessionId);
-				const stub = (env as any).AGENT.get(id);
+				const id = env.AGENT.idFromName(sessionId);
+				const stub = env.AGENT.get(id);
 				await stub.deinit();
 				return new Response(null, { status: 200, headers: corsHeaders });
 			}

@@ -10,6 +10,10 @@ declare namespace Cloudflare {
 		SESSIONS: DurableObjectNamespace<import("./src/agent-worker").SessionsDurableObject>;
 		AGENT: DurableObjectNamespace<import("./src/agent-worker").WhisperAgent>;
 		AI: Ai;
+		DEEPGRAM_API_KEY: string;
+		ELEVENLABS_API_KEY: string;
+		CF_ACCOUNT_ID: string; 
+        CF_API_TOKEN: string;
 	}
 }
 interface Env extends Cloudflare.Env {}
