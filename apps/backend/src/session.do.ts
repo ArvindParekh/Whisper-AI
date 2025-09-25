@@ -1,6 +1,5 @@
 import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from '@whisper/shared/types/watcher';
-import { DurableObject } from 'cloudflare:workers';
-import { WhisperAgent } from './realtime-agent';
+import { RealtimeAgent, TextComponent, RealtimeKitTransport, DeepgramSTT, ElevenLabsTTS } from '@cloudflare/realtime-agents';
 
 /**
  * Session state interface for storing project files and conversation history
@@ -14,17 +13,91 @@ interface SessionState {
 }
 
 /**
+ * Custom TextProcessor for AI responses with project context
+ */
+class WhisperTextProcessor extends TextComponent {
+	private env: Env;
+	private sessionId: string;
+
+	constructor(env: Env, sessionId: string) {
+		super();
+		this.env = env;
+		this.sessionId = sessionId;
+	}
+
+	async onTranscript(text: string, reply: (text: string) => void) {
+		console.log(`[Agent] Received transcript: "${text}"`);
+		try {
+			// Get project context for AI response
+			const context = await this.getProjectContext();
+
+			// Build system prompt with project context
+			const fileCount = Object.keys(context.files).length;
+			const fileList = Object.keys(context.files).slice(0, 5);
+
+			const systemPrompt = `You are an AI pair programming assistant with access to the user's project files.
+
+Project Context:
+- Total files: ${fileCount}
+- Key files: ${fileList.join(', ')}
+
+File contents preview:
+${fileList
+	.map((filename) => {
+		const file = context.files[filename];
+		if (!file) return `${filename}: (file not found)`;
+		const preview = file.content.substring(0, 500);
+		return `${filename}:\n${preview}${file.content.length > 500 ? '...' : ''}`;
+	})
+	.join('\n\n')}
+
+Please help the user with their coding question in the context of this project.`;
+
+			console.log('[Agent] Generating AI response...');
+			// Use Workers AI for response generation
+			const response = (await this.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: text },
+				],
+			})) as { response: string };
+
+			const aiResponse = response.response || 'I apologize, but I encountered an issue generating a response.';
+			console.log(`[Agent] AI response: "${aiResponse}"`);
+			reply(aiResponse);
+			this.speak(aiResponse);
+		} catch (error) {
+			console.error('[Agent] Error generating AI response:', error);
+			reply('Sorry, I encountered an error processing your request.');
+		}
+	}
+
+	async speak(text: string, contextId?: string): Promise<void> {
+		console.log(`[Agent] Speaking: "${text}"`);
+		await super.speak(text, contextId);
+	}
+
+	private async getProjectContext(): Promise<ProjectContext> {
+		// Access the parent SessionsDurableObject's project context
+		const parent = this.env.SESSIONS.get(this.env.SESSIONS.idFromName(this.sessionId));
+		return await (parent as any).getProjectContext(this.sessionId);
+	}
+}
+
+/**
  * SessionsDurableObject manages the state for each user session including:
  * - File synchronization and storage
  * - Conversation history
  * - Project context
+ * - AI processing and voice pipeline
  */
-export class SessionsDurableObject extends DurableObject<Env> {
+export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	private sessionState: SessionState | null = null;
-	private whisperAgent: WhisperAgent | null = null;
+	private sessionId: string;
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
+		this.sessionId = '';
 	}
 
 	/**
@@ -171,27 +244,98 @@ export class SessionsDurableObject extends DurableObject<Env> {
 		};
 	}
 
-	/*
-	
+	/**
+	 * Realtime Agents init: wire a voice pipeline.
+	 * Accepts (agentId, meetingId, authToken, workerUrlHost, accountId, apiToken)
+	 */
+	async init(
 		agentId: string,
 		meetingId: string,
 		authToken: string,
 		workerUrlHost: string,
 		accountId: string,
 		apiToken: string,
-	*/
-	/**
-	 * Process a user message via the WhisperAgent pipeline and return AI response
-	 */
-	async processMessage(sessionId: string, content: string): Promise<string> {
-		// Ensure state exists and agent is initialized
-		await this.ensureSessionState(sessionId);
-		if (!this.whisperAgent) {
-			this.whisperAgent = new WhisperAgent(this.ctx, this.env, sessionId);
-			await this.whisperAgent.init(sessionId, meetingId, authToken, workerUrlHost, accountId, apiToken);
-		}
+	): Promise<void> {
+		console.log('[Agent] Starting init');
 
-		return await this.whisperAgent.onMessage(content);
+		const textProcessor = new WhisperTextProcessor(this.env, this.sessionId);
+		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
+
+		// Text goes: textProcessor -> TTS -> RTK
+		await this.initPipeline(
+			[
+				rtkTransport, // audio IN from meeting
+				new DeepgramSTT(this.env.DEEPGRAM_API_KEY), // audio → text
+				textProcessor, // process text
+				new ElevenLabsTTS(this.env.ELEVENLABS_API_KEY), // text → audio
+				rtkTransport, // audio OUT to meeting
+			],
+			agentId,
+			workerUrlHost,
+			accountId,
+			apiToken,
+		);
+		const { meeting } = rtkTransport;
+		await meeting.join();
+		// await meeting.audio.play();
+
+		// Use textProcessor.speak(), not tts.speak()
+		textProcessor.speak('Testing audio output');
+
+		console.log('[Agent] Init complete');
+	}
+
+	async deinit(): Promise<void> {
+		console.log('[Agent] Deinitializing voice pipeline...');
+		await this.deinitPipeline();
+		console.log('[Agent] Voice pipeline deinitialized successfully');
+	}
+
+	/**
+	 * Generate code-aware AI response using project context and Workers AI
+	 */
+	private async generateCodeAwareResponse(userMessage: string, context: ProjectContext): Promise<string> {
+		try {
+			const fileCount = Object.keys(context.files).length;
+			const fileList = Object.keys(context.files).slice(0, 5);
+
+			// Build context for AI
+			const systemPrompt = `You are an AI pair programming assistant with access to the user's project files.
+			
+Project Context:
+- Total files: ${fileCount}
+- Key files: ${fileList.join(', ')}
+
+File contents preview:
+${fileList
+	.map((filename) => {
+		const file = context.files[filename];
+		if (!file) return `${filename}: (file not found)`;
+		const preview = file.content.substring(0, 500);
+		return `${filename}:\n${preview}${file.content.length > 500 ? '...' : ''}`;
+	})
+	.join('\n\n')}
+
+Please help the user with their coding question in the context of this project.`;
+
+			// Use Workers AI for response generation
+			const response = (await this.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: userMessage },
+				],
+			})) as { response: string };
+
+			return response.response || 'I apologize, but I encountered an issue generating a response. Please try again.';
+		} catch (error) {
+			console.error('Error generating AI response:', error);
+
+			// Fallback response
+			const fileCount = Object.keys(context.files).length;
+			const fileList = Object.keys(context.files).slice(0, 5).join(', ');
+
+			return `I can see your project has ${fileCount} files including: ${fileList}. Regarding "${userMessage}" - I'm having trouble with AI processing right now, but I'd be happy to help you analyze your code!`;
+		}
 	}
 
 	/**
@@ -213,11 +357,8 @@ export class SessionsDurableObject extends DurableObject<Env> {
 			return new Response('Session ID is required', { status: 400 });
 		}
 
-		// Initialize WhisperAgent if not already done
-		if (!this.whisperAgent) {
-			this.whisperAgent = new WhisperAgent(this.ctx, this.env, sessionId);
-			await this.whisperAgent.init(sessionId);
-		}
+		// Ensure session state exists
+		await this.ensureSessionState(sessionId);
 
 		// Handle WebSocket upgrade for real-time communication
 		if (request.headers.get('Upgrade') === 'websocket') {
@@ -236,7 +377,8 @@ export class SessionsDurableObject extends DurableObject<Env> {
 				try {
 					const data = JSON.parse(event.data);
 					if (data.type === 'message' && data.content) {
-						const response = await this.whisperAgent!.onMessage(data.content);
+						// const response = await this.processMessage(sessionId, data.content);
+						const response = 'hi';
 						server.send(
 							JSON.stringify({
 								type: 'response',

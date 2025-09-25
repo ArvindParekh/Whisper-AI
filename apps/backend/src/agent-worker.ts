@@ -1,23 +1,24 @@
-import { WhisperAgent } from './realtime-agent';
-import { SessionsDurableObject } from './session.do';
+import { WhisperSessionDurableObject } from './session.do';
 import type { syncFileRequestBody } from '@whisper/shared/types/watcher';
 
-export { SessionsDurableObject, WhisperAgent };
+export { WhisperSessionDurableObject };
 
-type SessionsStub = {
-	syncFile: (
-		filePath: string,
-		fileContent: string,
-		sessionId: string,
-		type: import('@whisper/shared/types/watcher').syncFileType,
-		timestamp: number,
-	) => Promise<import('@whisper/shared/types/watcher').syncFileResponseBody>;
-	getProjectContext: (sessionId: string) => Promise<import('@whisper/shared/types/watcher').ProjectContext>;
-	getConversationHistory: (sessionId: string, limit?: number) => Promise<import('@whisper/shared/types/watcher').ConversationMessage[]>;
-	addConversationMessage: (sessionId: string, type: 'user' | 'assistant', content: string, metadata?: Record<string, any>) => Promise<void>;
-	getSessionStats: (sessionId: string) => Promise<import('@whisper/shared/types/watcher').SessionStats>;
-	processMessage: (sessionId: string, content: string) => Promise<string>;
-};
+// type WhisperSessionDurableObject = {
+// 	syncFile: (
+// 		filePath: string,
+// 		fileContent: string,
+// 		sessionId: string,
+// 		type: import('@whisper/shared/types/watcher').syncFileType,
+// 		timestamp: number,
+// 	) => Promise<import('@whisper/shared/types/watcher').syncFileResponseBody>;
+// 	getProjectContext: (sessionId: string) => Promise<import('@whisper/shared/types/watcher').ProjectContext>;
+// 	getConversationHistory: (sessionId: string, limit?: number) => Promise<import('@whisper/shared/types/watcher').ConversationMessage[]>;
+// 	addConversationMessage: (sessionId: string, type: 'user' | 'assistant', content: string, metadata?: Record<string, any>) => Promise<void>;
+// 	getSessionStats: (sessionId: string) => Promise<import('@whisper/shared/types/watcher').SessionStats>;
+// 	processMessage: (sessionId: string, content: string) => Promise<string>;
+// 	init: (agentId: string, meetingId: string, authToken: string, workerUrlHost: string, accountId: string, apiToken: string) => Promise<void>;
+// 	deinit: () => Promise<void>;
+// };
 
 export default {
 	/**
@@ -56,15 +57,15 @@ export default {
 			// Realtime Agents internal plumbing passthrough
 			if (path.startsWith('/agentsInternal')) {
 				const agentId = sessionId || 'default';
-				const id = env.AGENT.idFromName(agentId);
-				const stub = env.AGENT.get(id);
+				const id = env.SESSIONS.idFromName(agentId);
+				const stub = env.SESSIONS.get(id);
 				return stub.fetch(request);
 			}
 
 			// Helper to get session DO stub
-			const getSessionStub = (sessionId: string): SessionsStub => {
+			const getSessionStub = (sessionId: string): WhisperSessionDurableObject => {
 				const id = env.SESSIONS.idFromName(sessionId);
-				return env.SESSIONS.get(id) as unknown as SessionsStub;
+				return env.SESSIONS.get(id) as unknown as WhisperSessionDurableObject;
 			};
 
 			// File synchronization endpoint (existing functionality)
@@ -173,10 +174,13 @@ export default {
 
 			// Initialize Realtime Agent voice pipeline
 			if (request.method === 'POST' && path === '/init') {
+				console.log(`[Worker] Received init request for session: ${sessionId}`);
+				
 				if (!sessionId) {
 					return new Response('Session ID required', { status: 400, headers: corsHeaders });
 				}
-				const meetingId = request.headers.get('meetingId');
+				// Extract meetingId from query parameters
+				const meetingId = url.searchParams.get('meetingId');
 				if (!meetingId) {
 					return new Response('Meeting ID required', { status: 400, headers: corsHeaders });
 				}
@@ -186,17 +190,43 @@ export default {
 				}
 				const authToken = authHeader.split(' ')[1] || '';
 
-				const id = env.AGENT.idFromName(sessionId);
-				const stub = env.AGENT.get(id);
-				await stub.init(
-					sessionId, // agentId
-					meetingId, // meetingId
-					authToken,
-					new URL(request.url).host,
-					env.CF_ACCOUNT_ID || '',
-					env.CF_API_TOKEN || '',
-				);
-				return new Response(null, { status: 200, headers: corsHeaders });
+				console.log(`[Worker] Initializing agent for meeting: ${meetingId}`);
+				
+				try {
+					const id = env.SESSIONS.idFromName(sessionId);
+					const stub = env.SESSIONS.get(id) as unknown as WhisperSessionDurableObject;
+					
+					console.log('[Worker] Calling agent init...');
+					console.log(`[Worker] Durable Object ID: ${id.toString()}`);
+					console.log(`[Worker] Session ID: ${sessionId}`);
+					console.log(`[Worker] Meeting ID: ${meetingId}`);
+					
+					const result = await stub.init(
+						sessionId, // agentId
+						meetingId, // meetingId
+						authToken,
+						new URL(request.url).host,
+						env.ACCOUNT_ID || '',
+						env.API_TOKEN || '',
+					);
+					
+					console.log('[Worker] Agent init completed successfully');
+					console.log(`[Worker] Init result: ${JSON.stringify(result)}`);
+					
+					return new Response(JSON.stringify({ success: true, message: 'Agent initialized successfully' }), { 
+						status: 200, 
+						headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+					});
+				} catch (error) {
+					console.error('[Worker] Agent init failed:', error);
+					return new Response(JSON.stringify({ 
+						success: false, 
+						error: error instanceof Error ? error.message : 'Unknown error' 
+					}), { 
+						status: 500, 
+						headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+					});
+				}
 			}
 
 			// Deinitialize Realtime Agent voice pipeline
@@ -204,8 +234,8 @@ export default {
 				if (!sessionId) {
 					return new Response('Session ID required', { status: 400, headers: corsHeaders });
 				}
-				const id = env.AGENT.idFromName(sessionId);
-				const stub = env.AGENT.get(id);
+				const id = env.SESSIONS.idFromName(sessionId);
+				const stub = env.SESSIONS.get(id) as unknown as WhisperSessionDurableObject;
 				await stub.deinit();
 				return new Response(null, { status: 200, headers: corsHeaders });
 			}
@@ -231,7 +261,7 @@ export default {
 
 				// Get the Durable Object for this session
 				const id = env.SESSIONS.idFromName(sessionId);
-				const durableObject = env.SESSIONS.get(id);
+				const durableObject = env.SESSIONS.get(id) as unknown as WhisperSessionDurableObject;
 
 				// Forward the request to the Durable Object for WebSocket handling
 				return durableObject.fetch(request);

@@ -13,32 +13,36 @@
 				"SessionsDurableObject"
 			],
 			"tag": "v1"
-		}
-		,
+		},
 		{
 			"new_sqlite_classes": [
 				"WhisperAgent"
 			],
 			"tag": "v2"
+		},
+		{
+			"renamed_classes": [
+				{
+					"from": "SessionsDurableObject",
+					"to": "WhisperSessionDurableObject"
+				}
+			],
+			"deleted_classes": [
+				"WhisperAgent"
+			],
+			"tag": "v4"
 		}
 	],
 	"durable_objects": {
 		"bindings": [
 			{
-				"class_name": "SessionsDurableObject",
+				"class_name": "WhisperSessionDurableObject",
 				"name": "SESSIONS"
-			},
-			{
-				"class_name": "WhisperAgent",
-				"name": "AGENT"
 			}
 		]
 	},
 	"ai": {
 		"binding": "AI"
-	},
-	"realtime": {
-		"enabled": true
 	},
 	"compatibility_flags": ["nodejs_compat"],
 	"observability": {

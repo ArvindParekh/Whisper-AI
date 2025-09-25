@@ -1,0 +1,1559 @@
+<page>
+---
+title: Overview · Cloudflare Realtime docs
+description: Cloudflare Realtime is infrastructure for real-time
+  audio/video/data applications. It allows you to build real-time apps without
+  worrying about scaling or regions. It can act as a selective forwarding unit
+  (WebRTC SFU), as a fanout delivery system for broadcasting (WebRTC CDN) or
+  anything in between.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/
+  md: https://developers.cloudflare.com/realtime/index.md
+---
+
+Build real-time serverless video, audio and data applications.
+
+Cloudflare Realtime is infrastructure for real-time audio/video/data applications. It allows you to build real-time apps without worrying about scaling or regions. It can act as a selective forwarding unit (WebRTC SFU), as a fanout delivery system for broadcasting (WebRTC CDN) or anything in between.
+
+Cloudflare Realtime runs on [Cloudflare's global cloud network](https://www.cloudflare.com/network/) in hundreds of cities worldwide.
+
+[Get started](https://developers.cloudflare.com/realtime/get-started/)
+
+[Realtime dashboard](https://dash.cloudflare.com/?to=/:account/calls)
+
+[Orange Meets demo app](https://github.com/cloudflare/orange)
+
+</page>
+
+<page>
+---
+title: 404 - Page Not Found · Cloudflare Realtime docs
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/404/
+  md: https://developers.cloudflare.com/realtime/404/index.md
+---
+
+# 404
+
+Check the URL, try using our [search](https://developers.cloudflare.com/search/) or try our LLM-friendly [llms.txt directory](https://developers.cloudflare.com/llms.txt).
+
+</page>
+
+<page>
+---
+title: Realtime vs Regular SFUs · Cloudflare Realtime docs
+description: Cloudflare Realtime represents a paradigm shift in building
+  real-time applications by leveraging a distributed real-time data plane. It
+  creates a seamless experience in real-time communication, transcending
+  traditional geographical limitations and scalability concerns. Realtime is
+  designed for developers looking to integrate WebRTC functionalities in a
+  server-client architecture without delving deep into the complexities of
+  regional scaling or server management.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/calls-vs-sfus/
+  md: https://developers.cloudflare.com/realtime/calls-vs-sfus/index.md
+---
+
+## Cloudflare Realtime vs. Traditional SFUs
+
+Cloudflare Realtime represents a paradigm shift in building real-time applications by leveraging a distributed real-time data plane. It creates a seamless experience in real-time communication, transcending traditional geographical limitations and scalability concerns. Realtime is designed for developers looking to integrate WebRTC functionalities in a server-client architecture without delving deep into the complexities of regional scaling or server management.
+
+### The Limitations of Centralized SFUs
+
+Selective Forwarding Units (SFUs) play a critical role in managing WebRTC connections by selectively forwarding media streams to participants in a video call. However, their centralized nature introduces inherent limitations:
+
+* **Regional Dependency:** A centralized SFU requires a specific region for deployment, leading to latency issues for global users except for those in proximity to the selected region.
+
+* **Scalability Concerns:** Scaling a centralized SFU to meet global demand can be challenging and inefficient, often requiring additional infrastructure and complexity.
+
+### How is Cloudflare Realtime different?
+
+Cloudflare Realtime addresses these limitations by leveraging Cloudflare's global network infrastructure:
+
+* **Global Distribution Without Regions:** Unlike traditional SFUs, Cloudflare Realtime operates on a global scale without regional constraints. It utilizes Cloudflare's extensive network of over 250 locations worldwide to ensure low-latency video forwarding, making it fast and efficient for users globally.
+
+* **Decentralized Architecture:** There are no dedicated servers for Realtime. Every server within Cloudflare's network contributes to handling Realtime, ensuring scalability and reliability. This approach mirrors the distributed nature of Cloudflare's products such as 1.1.1.1 DNS or Cloudflare's CDN.
+
+## How Cloudflare Realtime Works
+
+### Establishing Peer Connections
+
+To initiate a real-time communication session, an end user's client establishes a WebRTC PeerConnection to the nearest Cloudflare location. This connection benefits from anycast routing, optimizing for the lowest possible latency.
+
+### Signaling and Media Stream Management
+
+* **HTTPS API for Signaling:** Cloudflare Realtime simplifies signaling with a straightforward HTTPS API. This API manages the initiation and coordination of media streams, enabling clients to push new MediaStreamTracks or request these tracks from the server.
+
+* **Efficient Media Handling:** Unlike traditional approaches that require multiple connections for different media streams from different clients, Cloudflare Realtime maintains a single PeerConnection per client. This streamlined process reduces complexity and improves performance by handling both the push and pull of media through a singular connection.
+
+### Application-Level Management
+
+Cloudflare Realtime delegates the responsibility of state management and participant tracking to the application layer. Developers are empowered to design their logic for handling events such as participant joins or media stream updates, offering flexibility to create tailored experiences in applications.
+
+## Getting Started with Cloudflare Realtime
+
+Integrating Cloudflare Realtime into your application promises a straightforward and efficient process, removing the hurdles of regional scalability and server management so you can focus on creating engaging real-time experiences for users worldwide.
+
+</page>
+
+<page>
+---
+title: Changelog · Cloudflare Realtime docs
+description: Subscribe to RSS
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/changelog/
+  md: https://developers.cloudflare.com/realtime/changelog/index.md
+---
+
+[Subscribe to RSS](https://developers.cloudflare.com/realtime/changelog/index.xml)
+
+## 2024-09-25
+
+**TURN service is generally available (GA)**
+
+Cloudflare Realtime TURN service is generally available and helps address common challenges with real-time communication. For more information, refer to the [blog post](https://blog.cloudflare.com/webrtc-turn-using-anycast/) or [TURN documentation](https://developers.cloudflare.com/realtime/turn/).
+
+## 2024-04-04
+
+**Orange Meets availability**
+
+Orange Meets, Cloudflare's internal video conferencing app, is open source and available for use from [Github](https://github.com/cloudflare/orange?cf_target_id=40DF7321015C5928F9359DD01303E8C2).
+
+## 2024-04-04
+
+**Cloudflare Realtime open beta**
+
+Cloudflare Realtime is in open beta and available from the Cloudflare Dashboard.
+
+## 2022-09-27
+
+**Cloudflare Realtime closed beta**
+
+Cloudflare Realtime is available as a closed beta for users who request an invitation. Refer to the [blog post](https://blog.cloudflare.com/announcing-cloudflare-calls/) for more information.
+
+</page>
+
+<page>
+---
+title: DataChannels · Cloudflare Realtime docs
+description: DataChannels are a way to send arbitrary data, not just audio or
+  video data, between client in low latency. DataChannels are useful for
+  scenarios like chat, game state, or any other data that doesn't need to be
+  encoded as audio or video but still needs to be sent between clients in real
+  time.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/datachannels/
+  md: https://developers.cloudflare.com/realtime/datachannels/index.md
+---
+
+DataChannels are a way to send arbitrary data, not just audio or video data, between client in low latency. DataChannels are useful for scenarios like chat, game state, or any other data that doesn't need to be encoded as audio or video but still needs to be sent between clients in real time.
+
+While it is possible to send audio and video over DataChannels, it's not optimal because audio and video transfer includes media specific optimizations that DataChannels do not have, such as simulcast, forward error correction, better caching across the Cloudflare network for retransmissions.
+
+```mermaid
+graph LR
+    A[Publisher] -->|Arbitrary data| B[Cloudflare Realtime SFU]
+    B -->|Arbitrary data| C@{ shape: procs, label: "Subscribers"}
+```
+
+DataChannels on Cloudflare Realtime can scale up to many subscribers per publisher, there is no limit to the number of subscribers per publisher.
+
+### How to use DataChannels
+
+1. Create two Realtime sessions, one for the publisher and one for the subscribers.
+2. Create a DataChannel by calling /datachannels/new with the location set to "local" and the dataChannelName set to the name of the DataChannel.
+3. Create a DataChannel by calling /datachannels/new with the location set to "remote" and the sessionId set to the sessionId of the publisher.
+4. Use the DataChannel to send data from the publisher to the subscribers.
+
+### Unidirectional DataChannels
+
+Cloudflare Realtime SFU DataChannels are one way only. This means that you can only send data from the publisher to the subscribers. Subscribers cannot send data back to the publisher. While regular MediaStream WebRTC DataChannels are bidirectional, this introduces a problem for Cloudflare Realtime because the SFU does not know which session to send the data back to. This is especially problematic for scenarios where you have multiple subscribers and you want to send data from the publisher to all subscribers at scale, such as distributing game score updates to all players in a multiplayer game.
+
+To send data in a bidirectional way, you can use two DataChannels, one for sending data from the publisher to the subscribers and one for sending data the opposite direction.
+
+## Example
+
+An example of DataChannels in action can be found in the [Realtime Examples github repo](https://github.com/cloudflare/calls-examples/tree/main/echo-datachannels).
+
+</page>
+
+<page>
+---
+title: Demos · Cloudflare Realtime docs
+description: Learn how you can use Realtime within your existing architecture.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/demos/
+  md: https://developers.cloudflare.com/realtime/demos/index.md
+---
+
+Learn how you can use Realtime within your existing architecture.
+
+## Demos
+
+Explore the following demo applications for Realtime.
+
+* [Realtime Echo Demo:](https://github.com/cloudflare/calls-examples/tree/main/echo) Demonstrates a local stream alongside a remote echo stream.
+* [Orange Meets:](https://github.com/cloudflare/orange) Orange Meets is a demo WebRTC application built using Cloudflare Realtime.
+* [WHIP-WHEP Server:](https://github.com/cloudflare/calls-examples/tree/main/whip-whep-server) WHIP and WHEP server implemented on top of Realtime API.
+* [Realtime DataChannel Test:](https://github.com/cloudflare/calls-examples/tree/main/echo-datachannels) This example establishes two datachannels, one publishes data and the other one subscribes, the test measures how fast a message travels to and from the server.
+
+</page>
+
+<page>
+---
+title: Example architecture · Cloudflare Realtime docs
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/example-architecture/
+  md: https://developers.cloudflare.com/realtime/example-architecture/index.md
+---
+
+![Example Architecture](https://developers.cloudflare.com/_astro/video-calling-application.CIYa-lzM_e7Gu.webp)
+
+1. Clients connect to the backend service
+2. Backend service manages the relationship between the clients and the tracks they should subscribe to
+3. Backend service contacts the Cloudflare Realtime API to pass the SDP from the clients to establish the WebRTC connection.
+4. Realtime API relays back the Realtime API SDP reply and renegotiation messages.
+5. If desired, headless clients can be used to record the content from other clients or publish content.
+6. Admin manages the rooms and room members.
+
+</page>
+
+<page>
+---
+title: Quickstart guide · Cloudflare Realtime docs
+description: >-
+  Every Realtime App is a separate environment, so you can make one for
+  development, staging and production versions for your product.
+
+  Either using Dashboard, or the API create a Realtime App. When you create a
+  Realtime App, you will get:
+lastUpdated: 2025-05-29T18:16:56.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/get-started/
+  md: https://developers.cloudflare.com/realtime/get-started/index.md
+---
+
+Before you get started:
+
+You must first [create a Cloudflare account](https://developers.cloudflare.com/fundamentals/account/create-account/).
+
+## Create your first app
+
+Every Realtime App is a separate environment, so you can make one for development, staging and production versions for your product. Either using [Dashboard](https://dash.cloudflare.com/?to=/:account/calls), or the [API](https://developers.cloudflare.com/api/resources/calls/subresources/sfu/methods/create/) create a Realtime App. When you create a Realtime App, you will get:
+
+* App ID
+* App Secret
+
+These two combined will allow you to make API Realtime from your backend server to Realtime.
+
+</page>
+
+<page>
+---
+title: Connection API · Cloudflare Realtime docs
+description: Cloudflare Realtime simplifies the management of peer connections
+  and media tracks through HTTPS API endpoints. These endpoints allow developers
+  to efficiently manage sessions, add or remove tracks, and gather session
+  information.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/https-api/
+  md: https://developers.cloudflare.com/realtime/https-api/index.md
+---
+
+Cloudflare Realtime simplifies the management of peer connections and media tracks through HTTPS API endpoints. These endpoints allow developers to efficiently manage sessions, add or remove tracks, and gather session information.
+
+## API Endpoints
+
+* **Create a New Session**: Initiates a new session on Cloudflare Realtime, which can be modified with other endpoints below.
+  * `POST /apps/{appId}/sessions/new`
+* **Add a New Track**: Adds a media track (audio or video) to an existing session.
+  * `POST /apps/{appId}/sessions/{sessionId}/tracks/new`
+* **Renegotiate a Session**: Updates the session's negotiation state to accommodate new tracks or changes in the existing ones.
+  * `PUT /apps/{appId}/sessions/{sessionId}/renegotiate`
+* **Close a Track**: Removes a specified track from the session.
+  * `PUT /apps/{appId}/sessions/{sessionId}/tracks/close`
+* **Retrieve Session Information**: Fetches detailed information about a specific session.
+  * `GET /apps/{appId}/sessions/{sessionId}`
+
+[View full API and schema (OpenAPI format)](https://developers.cloudflare.com/realtime/static/calls-api-2024-05-21.yaml)
+
+## Handling Secrets
+
+It is vital to manage App ID and its secret securely. While track and session IDs can be public, they should be protected to prevent misuse. An attacker could exploit these IDs to disrupt service if your backend server does not authenticate request origins properly, for example by sending requests to close tracks on sessions other than their own. Ensuring the security and authenticity of requests to your backend server is crucial for maintaining the integrity of your application.
+
+## Using STUN and TURN Servers
+
+Cloudflare Realtime is designed to operate efficiently without the need for TURN servers in most scenarios, as Cloudflare exposes a publicly routable IP address for Realtime. However, integrating a STUN server can be necessary for facilitating peer discovery and connectivity.
+
+* **Cloudflare STUN Server**: `stun.cloudflare.com:3478`
+
+Utilizing Cloudflare's STUN server can help the connection process for Realtime applications.
+
+## Lifecycle of a Simple Session
+
+This section provides an overview of the typical lifecycle of a simple session, focusing on audio-only applications. It illustrates how clients are notified by the backend server as new remote clients join or leave, incorporating video would introduce additional tracks and considerations into the session.
+
+```mermaid
+sequenceDiagram
+    participant WA as WebRTC Agent
+    participant BS as Backend Server
+    participant CA as Realtime API
+
+    Note over BS: Client Joins
+
+    WA->>BS: Request
+    BS->>CA: POST /sessions/new
+    CA->>BS: newSessionResponse
+    BS->>WA: Response
+
+    WA->>BS: Request
+    BS->>CA: POST /sessions/<ID>/tracks/new (Offer)
+    CA->>BS: newTracksResponse (Answer)
+    BS->>WA: Response
+
+    WA-->>CA: ICE Connectivity Check
+    Note over WA: iceconnectionstatechange (connected)
+    WA-->>CA: DTLS Handshake
+    Note over WA: connectionstatechange (connected)
+
+    WA<<->>CA: *Media Flow*
+
+    Note over BS: Remote Client Joins
+
+    WA->>BS: Request
+    BS->>CA: POST /sessions/<ID>/tracks/new
+    CA->>BS: newTracksResponse (Offer)
+    BS->>WA: Response
+
+    WA->>BS: Request
+    BS->>CA: PUT /sessions/<ID>/renegotiate (Answer)
+    CA->>BS: OK
+    BS->>WA: Response
+
+    Note over BS: Remote Client Leaves
+
+    WA->>BS: Request
+    BS->>CA: PUT /sessions/<ID>/tracks/close
+    CA->>BS: closeTracksResponse
+    BS->>WA: Response
+
+    Note over BS: Client Leaves
+
+    WA->>BS: Request
+    BS->>CA: PUT /sessions/<ID>/tracks/close
+    CA->>BS: closeTracksResponse
+    BS->>WA: Response
+```
+
+</page>
+
+<page>
+---
+title: Introduction · Cloudflare Realtime docs
+description: Cloudflare Realtime can be used to add realtime audio, video and
+  data into your applications. Cloudflare Realtime uses WebRTC, which is the
+  lowest latency way to communicate across a broad range of platforms like
+  browsers, mobile, and native apps.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/introduction/
+  md: https://developers.cloudflare.com/realtime/introduction/index.md
+---
+
+Cloudflare Realtime can be used to add realtime audio, video and data into your applications. Cloudflare Realtime uses WebRTC, which is the lowest latency way to communicate across a broad range of platforms like browsers, mobile, and native apps.
+
+Realtime integrates with your backend and frontend application to add realtime functionality.
+
+## Why Cloudflare Realtime exists
+
+* **It is difficult to scale WebRTC**: Many struggle scaling WebRTC servers. Operators run into issues about how many users can be in the same "room" or want to build unique solutions that do not fit into the current concepts in high level APIs.
+
+* **High egress costs**: WebRTC is expensive to use as managed solutions charge a high premium on cloud egress and running your own servers incur system administration and scaling overhead. Cloudflare already has 300+ locations with upwards of 1,000 servers in some locations. Cloudflare Realtime scales easily on top of this architecture and can offer the lowest WebRTC usage costs.
+
+* **WebRTC is growing**: Developers are realizing that WebRTC is not just for video conferencing. WebRTC is supported on many platforms, it is mature and well understood.
+
+## What makes Cloudflare Realtime unique
+
+* **Unopinionated**: Cloudflare Realtime does not offer a SDK. It instead allows you to access raw WebRTC to solve unique problems that might not fit into existing concepts. The API is deliberately simple.
+
+* **No rooms**: Unlike other WebRTC products, Cloudflare Realtime lets you be in charge of each track (audio/video/data) instead of offering abstractions such as rooms. You define the presence protocol on top of simple pub/sub. Each end user can publish and subscribe to audio/video/data tracks as they wish.
+
+* **No lock-in**: You can use Cloudflare Realtime to solve scalability issues with your SFU. You can use in combination with peer-to-peer architecture. You can use Cloudflare Realtime standalone. To what extent you use Cloudflare Realtime is up to you.
+
+## What exactly does Cloudflare Realtime do?
+
+* **SFU**: Realtime is a special kind of pub/sub server that is good at forwarding media data to clients that subscribe to certain data. Each client connects to Cloudflare Realtime via WebRTC and either sends data, receives data or both using WebRTC. This can be audio/video tracks or DataChannels.
+
+* **It scales**: All Cloudflare servers act as a single server so millions of WebRTC clients can connect to Cloudflare Realtime. Each can send data, receive data or both with other clients.
+
+## How most developers get started
+
+1. Get started with the echo example, which you can download from the Cloudflare dashboard when you create a Realtime App or from [demos](https://developers.cloudflare.com/realtime/demos/). This will show you how to send and receive audio and video.
+
+2. Understand how you can manipulate who can receive what media by passing around session and track ids. Remember, you control who receives what media. Each media track is represented by a unique ID. It is your responsibility to save and distribute this ID.
+
+Realtime is not a presence protocol
+
+Realtime does not know what a room is. It only knows media tracks. It is up to you to make a room by saving who is in a room along with track IDs that unique identify media tracks. If each participant publishes their audio/video, and receives audio/video from each other, you have got yourself a video conference!
+
+1. Create an app where you manage each connection to Cloudflare Realtime and the track IDs created by each connection. You can use any tool to save and share tracks. Check out the example apps at [demos](https://developers.cloudflare.com/realtime/demos/), such as [Orange Meets](https://github.com/cloudflare/orange), which is a full-fledged video conferencing app that uses [Workers Durable Objects](https://developers.cloudflare.com/durable-objects/) to keep track of track IDs.
+
+</page>
+
+<page>
+---
+title: Limits, timeouts and quotas · Cloudflare Realtime docs
+description: Understanding the limits and timeouts of Cloudflare Realtime is
+  crucial for optimizing the performance and reliability of your applications.
+  This section outlines the key constraints and behaviors you should be aware of
+  when integrating Cloudflare Realtime into your app.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/limits/
+  md: https://developers.cloudflare.com/realtime/limits/index.md
+---
+
+Understanding the limits and timeouts of Cloudflare Realtime is crucial for optimizing the performance and reliability of your applications. This section outlines the key constraints and behaviors you should be aware of when integrating Cloudflare Realtime into your app.
+
+## Free
+
+* Each account gets 1,000GB/month of data transfer from Cloudflare to your client for free.
+* Data transfer from your client to Cloudflare is always free of charge.
+
+## Limits
+
+* **API Realtime per Session**: You can make up to 50 API calls per second for each session. There is no ratelimit on a App basis, just sessions.
+
+* **Tracks per API Call**: Up to 64 tracks can be added with a single API call. If you need to add more tracks to a session, you should distribute them across multiple API calls.
+
+* **Tracks per Session**: There's no upper limit to the number of tracks a session can contain, the practical limit is governed by your connection's bandwidth to and from Cloudflare.
+
+## Inactivity Timeout
+
+* **Track Timeout**: Tracks will automatically timeout and be garbage collected after 30 seconds of inactivity, where inactivity is defined as no media packets being received by Cloudflare. This mechanism ensures efficient use of resources and session cleanliness across all Sessions that use a track.
+
+## PeerConnection Requirements
+
+* **Session State**: For any operation on a session (e.g., pulling or pushing tracks), the PeerConnection state must be `connected`. Operations will block for up to 5 seconds awaiting this state before timing out. This ensures that only active and viable sessions are engaged in media transmission.
+
+## Handling Connectivity Issues
+
+* **Internet Connectivity Considerations**: The potential for internet connectivity loss between the client and Cloudflare is an operational reality that must be addressed. Implementing a detection and reconnection strategy is recommended to maintain session continuity. This could involve periodic 'heartbeat' signals to your backend server to monitor connectivity status. Upon detecting connectivity issues, automatically attempting to reconnect and establish a new session is advised. Sessions and tracks will remain available for reuse for 30 seconds before timing out, providing a brief window for reconnection attempts.
+
+Adhering to these limits and understanding the timeout behaviors will help ensure that your applications remain responsive and stable while providing a seamless user experience.
+
+</page>
+
+<page>
+---
+title: Pricing · Cloudflare Realtime docs
+description: Cloudflare Realtime billing is based on data sent from Cloudflare
+  edge to your application.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/pricing/
+  md: https://developers.cloudflare.com/realtime/pricing/index.md
+---
+
+Cloudflare Realtime billing is based on data sent from Cloudflare edge to your application.
+
+Cloudflare Realtime SFU and TURN services cost $0.05 per GB of data egress.
+
+There is a free tier of 1,000 GB before any charges start. This free tier includes usage from both SFU and TURN services, not two independent free tiers. Cloudflare Realtime billing appears as a single line item on your Cloudflare bill, covering both SFU and TURN.
+
+Traffic between Cloudflare Realtime TURN and Cloudflare Realtime SFU or Cloudflare Stream (WHIP/WHEP) does not get double charged, so if you are using both SFU and TURN at the same time, you will get charged for only one.
+
+### TURN
+
+Please see the [TURN FAQ page](https://developers.cloudflare.com/realtime/turn/faq), where there is additional information on speficially which traffic path from RFC8656 is measured and counts towards billing.
+
+### SFU
+
+Only traffic originating from Cloudflare towards clients incurs charges. Traffic pushed to Cloudflare incurs no charge even if there is no client pulling same traffic from Cloudflare.
+
+</page>
+
+<page>
+---
+title: Sessions and Tracks · Cloudflare Realtime docs
+description: "Cloudflare Realtime offers a simple yet powerful framework for
+  building real-time experiences. At the core of this system are three key
+  concepts: Applications,  Sessions and Tracks. Familiarizing yourself with
+  these concepts is crucial for using Realtime."
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/sessions-tracks/
+  md: https://developers.cloudflare.com/realtime/sessions-tracks/index.md
+---
+
+Cloudflare Realtime offers a simple yet powerful framework for building real-time experiences. At the core of this system are three key concepts: **Applications**, **Sessions** and **Tracks**. Familiarizing yourself with these concepts is crucial for using Realtime.
+
+## Application
+
+A Realtime Application is an environment within different Sessions and Tracks can interact. Examples of this could be production, staging or different environments where you'd want separation between Sessions and Tracks. Cloudflare Realtime usage can be queried at Application, Session or Track level.
+
+## Sessions
+
+A **Session** in Cloudflare Realtime correlates directly to a WebRTC PeerConnection. It represents the establishment of a communication channel between a client and the nearest Cloudflare data center, as determined by Cloudflare's anycast routing. Typically, a client will maintain a single Session, encompassing all communications between the client and Cloudflare.
+
+* **One-to-One Mapping with PeerConnection**: Each Session is a direct representation of a WebRTC PeerConnection, facilitating real-time media data transfer.
+* **Anycast Routing**: The client connects to the closest Cloudflare data center, optimizing latency and performance.
+* **Unified Communication Channel**: A single Session can handle all types of communication between a client and Cloudflare, ensuring streamlined data flow.
+
+## Tracks
+
+Within a Session, there can be one or more **Tracks**.
+
+* **Tracks map to MediaStreamTrack**: Tracks align with the MediaStreamTrack concept, facilitating audio, video, or data transmission.
+* **Globally Unique Ids**: When you push a track to Cloudflare, it is assigned a unique ID, which can then be used to pull the track into another session elsewhere.
+* **Available globally**: The ability to push and pull tracks is central to what makes Realtime a versatile tool for real-time applications. Each track is available globally to be retrieved from any Session within an App.
+
+## Realtime as a Programmable "Switchboard"
+
+The analogy of a switchboard is apt for understanding Realtime. Historically, switchboard operators connected calls by manually plugging in jacks. Similarly, Realtime allows for the dynamic routing of media streams, acting as a programmable switchboard for modern real-time communication.
+
+## Beyond "Rooms", "Users", and "Participants"
+
+While many SFUs utilize concepts like "rooms" to manage media streams among users, this approach has scalability and flexibility limitations. Cloudflare Realtime opts for a more granular and flexible model with Sessions and Tracks, enabling a wide range of use cases:
+
+* Large-scale remote events, like 'fireside chats' with thousands of participants.
+* Interactive conversations with the ability to bring audience members "on stage."
+* Educational applications where an instructor can present to multiple virtual classrooms simultaneously.
+
+### Presence Protocol vs. Media Flow
+
+Realtime distinguishes between the presence protocol and media flow, allowing for scalability and flexibility in real-time applications. This separation enables developers to craft tailored experiences, from intimate calls to massive, low-latency broadcasts.
+
+</page>
+
+<page>
+---
+title: Simulcast · Cloudflare Realtime docs
+description: Simulcast is a feature of WebRTC that allows a publisher to send
+  multiple video streams of the same media at different qualities. For example,
+  this is useful for scenarios where you want to send a high quality stream for
+  desktop users and a lower quality stream for mobile users.
+lastUpdated: 2025-06-03T15:50:12.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/simulcast/
+  md: https://developers.cloudflare.com/realtime/simulcast/index.md
+---
+
+Simulcast is a feature of WebRTC that allows a publisher to send multiple video streams of the same media at different qualities. For example, this is useful for scenarios where you want to send a high quality stream for desktop users and a lower quality stream for mobile users.
+
+```mermaid
+graph LR
+    A[Publisher] -->|Low quality| B[Cloudflare Realtime SFU]
+    A -->|Medium quality| B
+    A -->|High quality| B
+B -->|Low quality| C@{ shape: procs, label: "Subscribers"}
+B -->|Medium quality| D@{ shape: procs, label: "Subscribers"}
+B -->|High quality| E@{ shape: procs, label: "Subscribers"}
+```
+
+### How it works
+
+Simulcast in WebRTC allows a single video source, like a camera or screen share, to be encoded at multiple quality levels and sent simultaneously, which is beneficial for subscribers with varying network conditions and device capabilities. The video source is encoded into multiple streams, each identified by RIDs (RTP Stream Identifiers) for different quality levels, such as low, medium, and high. These simulcast streams are described in the SDP you send to Cloudflare Realtime SFU. It's the responsibility of the Cloudflare Realtime SFU to ensure that the appropriate quality stream is delivered to each subscriber based on their network conditions and device capabilities.
+
+Cloudflare Realtime SFU will automatically handle the simulcast configuration based on the SDP you send to it from the publisher. The SFU will then automatically switch between the different quality levels based on the subscriber's network conditions, or the qaulity level can be controlled manually via the API. You can control the quality switching behavior using the `simulcast` configuration object when you send an API call to start pulling a remote track.
+
+### Quality Control
+
+The `simulcast` configuration object in the API call when you start pulling a remote track allows you to specify:
+
+* `preferredRid`: The preferred quality level for the video stream (RID for the simulcast stream. [RIDs can be specified by the publisher.](https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/setParameters#encodings))
+
+* `priorityOrdering`: Controls how the SFU handles bandwidth constraints.
+
+  * `none`: Keep sending the preferred layer, set via the preferredRid, even if there's not enough bandwidth.
+  * `asciibetical`: Use alphabetical ordering (a-z) to determine priority, where 'a' is most desirable and 'z' is least desirable.
+
+* `ridNotAvailable`: Controls what happens when the preferred RID is no longer available, for example when the publisher stops sending it.
+
+  * `none`: Do nothing.
+  * `asciibetical`: Switch to the next available RID based on the priority ordering, where 'a' is most desirable and 'z' is least desirable.
+
+  You will likely want to order the asciibetical RIDs based on your desired metric, such as higest resoltion to lowest or highest bandwidth to lowest.
+
+### Bandwidth Management across media tracks
+
+Cloudflare Realtime treats all media tracks equally at the transport level. For example, if you have multiple video tracks (cameras, screen shares, etc.), they all have equal priority for bandwidth allocation. This means:
+
+1. Each track's simulcast configuration is handled independently
+2. The SFU performs automatic bandwidth estimation and layer switching based on network conditions independently for each track
+
+### Layer Switching Behavior
+
+When a layer switch is requested (through updating `preferredRid`) with the `/tracks/update` API:
+
+1. The SFU will automatically generate a Full Intraframe Request (FIR)
+2. PLI generation is debounced to prevent excessive requests
+
+### Publisher Configuration
+
+For publishers (local tracks), you only need to include the simulcast attributes in your SDP. The SFU will automatically handle the simulcast configuration based on the SDP. For example, the SDP should contain a section like this:
+
+```txt
+a=simulcast:send f;h;q
+a=rid:f send
+a=rid:h send
+a=rid:q send
+```
+
+If the publisher endpoint is a browser you can include these by specifying `sendEncodings` when creating the transceiver like this:
+
+```js
+const transceiver = peerConnection.addTransceiver(track, {
+  direction: "sendonly",
+  sendEncodings: [
+    { scaleResolutionDownBy: 1, rid: "f" },
+    { scaleResolutionDownBy: 2, rid: "h" },
+    { scaleResolutionDownBy: 4, rid: "q" }
+  ]
+});
+```
+
+## Example
+
+Here's an example of how to use simulcast with Cloudflare Realtime:
+
+1. Create a new local track with simulcast configuration. There should be a section in the SDP with `a=simulcast:send`.
+2. Use the [Cloudflare Realtime API](https://developers.cloudflare.com/realtime/https-api) to push this local track, by calling the /tracks/new endpoint.
+3. Use the [Cloudflare Realtime API](https://developers.cloudflare.com/realtime/https-api) to start pulling a remote track (from another browser or device), by calling the /tracks/new endpoint and specifying the `simulcast` configuration object along with the remote track ID you get from step 2.
+
+For more examples, check out the [Realtime Examples GitHub repository](https://github.com/cloudflare/calls-examples/tree/main/echo-simulcast).
+
+</page>
+
+<page>
+---
+title: TURN Service · Cloudflare Realtime docs
+description: Separately from the SFU, Realtime offers a managed TURN service.
+  TURN acts as a relay point for traffic between WebRTC clients like the browser
+  and SFUs, particularly in scenarios where direct communication is obstructed
+  by NATs or firewalls. TURN maintains an allocation of public IP addresses and
+  ports for each session, ensuring connectivity even in restrictive network
+  environments.
+lastUpdated: 2025-05-26T07:37:09.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/
+  md: https://developers.cloudflare.com/realtime/turn/index.md
+---
+
+Separately from the SFU, Realtime offers a managed TURN service. TURN acts as a relay point for traffic between WebRTC clients like the browser and SFUs, particularly in scenarios where direct communication is obstructed by NATs or firewalls. TURN maintains an allocation of public IP addresses and ports for each session, ensuring connectivity even in restrictive network environments.
+
+Using Cloudflare Realtime TURN service is available free of charge when used together with the Realtime SFU. Otherwise, it costs $0.05/real-time GB outbound from Cloudflare to the TURN client.
+
+## Service address and ports
+
+| Protocol | Primary address | Primary port | Alternate port |
+| - | - | - | - |
+| STUN over UDP | stun.cloudflare.com | 3478/udp | 53/udp |
+| TURN over UDP | turn.cloudflare.com | 3478/udp | 53 udp |
+| TURN over TCP | turn.cloudflare.com | 3478/tcp | 80/tcp |
+| TURN over TLS | turn.cloudflare.com | 5349/tcp | 443/tcp |
+
+Note
+
+Use of alternate port 53 only by itself is not recommended. Port 53 is blocked by many ISPs, and by popular browsers such as [Chrome](https://chromium.googlesource.com/chromium/src.git/+/refs/heads/master/net/base/port_util.cc#44) and [Firefox](https://github.com/mozilla/gecko-dev/blob/master/netwerk/base/nsIOService.cpp#L132). It is useful only in certain specific scenerios.
+
+## Regions
+
+Realtime TURN service is available in every Cloudflare data center.
+
+When a client tries to connect to `turn.cloudflare.com`, it *automatically* connects to the Cloudflare location closest to them. We achieve this using anycast routing.
+
+To learn more about the architecture that makes this possible, read this [technical deep-dive about Realtime](https://blog.cloudflare.com/cloudflare-calls-anycast-webrtc).
+
+## Protocols and Ciphers for TURN over TLS
+
+TLS versions supported include TLS 1.1, TLS 1.2, and TLS 1.3.
+
+| OpenSSL Name | TLS 1.1 | TLS 1.2 | TLS 1.3 |
+| - | - | - | - |
+| AEAD-AES128-GCM-SHA256 | No | No | ✅ |
+| AEAD-AES256-GCM-SHA384 | No | No | ✅ |
+| AEAD-CHACHA20-POLY1305-SHA256 | No | No | ✅ |
+| ECDHE-ECDSA-AES128-GCM-SHA256 | No | ✅ | No |
+| ECDHE-RSA-AES128-GCM-SHA256 | No | ✅ | No |
+| ECDHE-RSA-AES128-SHA | ✅ | ✅ | No |
+| AES128-GCM-SHA256 | No | ✅ | No |
+| AES128-SHA | ✅ | ✅ | No |
+| AES256-SHA | ✅ | ✅ | No |
+
+## MTU
+
+There is no specific MTU limit for Cloudflare Realtime TURN service.
+
+## Limits
+
+Cloudflare Realtime TURN service places limits on:
+
+* Unique IP address you can communicate with per relay allocation (>5 new IP/sec)
+* Packet rate outbound and inbound to the relay allocation (>5-10 kpps)
+* Data rate outbound and inbound to the relay allocation (>50-100 Mbps)
+
+Limits apply to each TURN allocation independently
+
+Each limit is for a single TURN allocation (single TURN user) and not account wide. Same limit will apply to each user regardless of the number of unique TURN users.
+
+These limits are suitable for high-demand applications and also have burst rates higher than those documented above. Hitting these limits will result in packet drops.
+
+</page>
+
+<page>
+---
+title: Analytics · Cloudflare Realtime docs
+description: Cloudflare Realtime TURN service counts ingress and egress usage in
+  bytes. You can access this real-time and historical data using the TURN
+  analytics API. You can see TURN usage data in a time series or aggregate that
+  shows traffic in bytes over time.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/analytics/
+  md: https://developers.cloudflare.com/realtime/turn/analytics/index.md
+---
+
+Cloudflare Realtime TURN service counts ingress and egress usage in bytes. You can access this real-time and historical data using the TURN analytics API. You can see TURN usage data in a time series or aggregate that shows traffic in bytes over time.
+
+Cloudflare TURN analytics is available over the GraphQL API only.
+
+API token permissions
+
+You will need the "Account Analytics" permission on your API token to make queries to the Realtime GraphQL API.
+
+Note
+
+See [GraphQL API](https://developers.cloudflare.com/analytics/graphql-api/) for more information on how to set up your GraphQL client. The examples below use the same GraphQL endpoint at `https://api.cloudflare.com/client/v4/graphql`.
+
+## TURN traffic data filters
+
+You can filter the data in TURN analytics on:
+
+* Datetime range
+* TURN Key ID
+* TURN Username
+* Custom identifier
+
+Note
+
+[Custom identifiers](https://developers.cloudflare.com/realtime/turn/replacing-existing/#tag-users-with-custom-identifiers) are useful for accounting usage for different users in your system.
+
+## Useful TURN analytics queries
+
+Below are some example queries for common usecases. You can modify them to adapt your use case and get different views to the analytics data.
+
+### Top TURN keys by egress
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+        }
+          limit: 2
+          orderBy: [sum_egressBytes_DESC]
+        ) {
+          dimensions {
+            keyId
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+```plaintext
+{
+  "data": {
+    "viewer": {
+      "usage": [
+        {
+          "callsTurnUsageAdaptiveGroups": [
+            {
+              "dimensions": {
+                "keyId": "74007022d80d7ebac4815fb776b9d3ed"
+              },
+              "sum": {
+                "egressBytes": 502614982
+              }
+            },
+            {
+              "dimensions": {
+                "keyId": "6b9e68b07dfee8cc2d116e4c51d6a957"
+              },
+              "sum": {
+                "egressBytes": 4853235
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": null
+}
+```
+
+### Top TURN custom identifiers
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+        }
+          limit: 100
+          orderBy: [sum_egressBytes_DESC]
+        ) {
+          dimensions {
+            customIdentifier
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+```plaintext
+{
+  "data": {
+    "viewer": {
+      "usage": [
+        {
+          "callsTurnUsageAdaptiveGroups": [
+            {
+              "dimensions": {
+                "customIdentifier": "custom-id-333"
+              },
+              "sum": {
+                "egressBytes": 269850354
+              }
+            },
+            {
+              "dimensions": {
+                "customIdentifier": "custom-id-555"
+              },
+              "sum": {
+                "egressBytes": 162641324
+              }
+            },
+            {
+              "dimensions": {
+                "customIdentifier": "custom-id-112"
+              },
+              "sum": {
+                "egressBytes": 70123304
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": null
+}
+```
+
+### Usage for a specific custom identifier
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+          customIdentifier: "tango"
+        }
+          limit: 100
+          orderBy: []
+        ) {
+          dimensions {
+            keyId
+            customIdentifier
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+```plaintext
+{
+  "data": {
+    "viewer": {
+      "usage": [
+        {
+          "callsTurnUsageAdaptiveGroups": [
+            {
+              "dimensions": {
+                "customIdentifier": "tango",
+                "keyId": "74007022d80d7ebac4815fb776b9d3ed"
+              },
+              "sum": {
+                "egressBytes": 162641324
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": null
+}
+```
+
+### Usage as a timeseries (for graphs)
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+        }
+          limit: 100
+          orderBy: [datetimeMinute_ASC]
+        ) {
+          dimensions {
+            datetimeMinute
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+```plaintext
+{
+  "data": {
+    "viewer": {
+      "usage": [
+        {
+          "callsTurnUsageAdaptiveGroups": [
+            {
+              "dimensions": {
+                "datetimeMinute": "2024-08-01T17:09:00Z"
+              },
+              "sum": {
+                "egressBytes": 4570704
+              }
+            },
+            {
+              "dimensions": {
+                "datetimeMinute": "2024-08-01T17:10:00Z"
+              },
+              "sum": {
+                "egressBytes": 27203016
+              }
+            },
+            {
+              "dimensions": {
+                "datetimeMinute": "2024-08-01T17:11:00Z"
+              },
+              "sum": {
+                "egressBytes": 9067412
+              }
+            },
+            {
+              "dimensions": {
+                "datetimeMinute": "2024-08-01T17:17:00Z"
+              },
+              "sum": {
+                "egressBytes": 10059322
+              }
+            },
+            ...
+           ]
+        }
+      ]
+    }
+  },
+  "errors": null
+}
+```
+
+</page>
+
+<page>
+---
+title: Custom TURN domains · Cloudflare Realtime docs
+description: Cloudflare Realtime TURN service supports using custom domains for
+  UDP, and TCP - but not TLS protocols. Custom domains do not affect any of the
+  performance of Cloudflare Realtime TURN and is set up via a simple CNAME DNS
+  record on your domain.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/custom-domains/
+  md: https://developers.cloudflare.com/realtime/turn/custom-domains/index.md
+---
+
+Cloudflare Realtime TURN service supports using custom domains for UDP, and TCP - but not TLS protocols. Custom domains do not affect any of the performance of Cloudflare Realtime TURN and is set up via a simple CNAME DNS record on your domain.
+
+| Protocol | Custom domains | Primary port | Alternate port |
+| - | - | - | - |
+| STUN over UDP | ✅ | 3478/udp | 53/udp |
+| TURN over UDP | ✅ | 3478/udp | 53 udp |
+| TURN over TCP | ✅ | 3478/tcp | 80/tcp |
+| TURN over TLS | No | 5349/tcp | 443/tcp |
+
+## Setting up a CNAME record
+
+To use custom domains for TURN, you must create a CNAME DNS record pointing to `turn.cloudflare.com`.
+
+Warning
+
+Do not resolve the address of `turn.cloudflare.com` or `stun.cloudflare.com` or use an IP address as the value you input to your DNS record. Only CNAME records are supported.
+
+Any DNS provider, including Cloudflare DNS can be used to set up a CNAME for custom domains.
+
+Note
+
+If Cloudflare's authoritative DNS service is used, the record must be set to [DNS-only or "grey cloud" mode](https://developers.cloudflare.com/dns/proxy-status/#dns-only-records).\`
+
+There is no additional charge to using a custom hostname with Cloudflare Realtime TURN.
+
+</page>
+
+<page>
+---
+title: FAQ · Cloudflare Realtime docs
+description: Cloudflare TURN pricing is based on the data sent from the
+  Cloudflare edge to the TURN client, as described in RFC 8656 Figure 1. This
+  means data sent from the TURN server to the TURN client and captures all data,
+  including TURN overhead, following successful authentication.
+lastUpdated: 2025-06-06T23:05:08.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/faq/
+  md: https://developers.cloudflare.com/realtime/turn/faq/index.md
+---
+
+## General
+
+### What is Cloudflare Realtime TURN pricing? How exactly is it calculated?
+
+Cloudflare TURN pricing is based on the data sent from the Cloudflare edge to the TURN client, as described in [RFC 8656 Figure 1](https://datatracker.ietf.org/doc/html/rfc8656#fig-turn-model). This means data sent from the TURN server to the TURN client and captures all data, including TURN overhead, following successful authentication.
+
+Pricing for Cloudflare Realtime TURN service is $0.05 per GB of data used.
+
+Cloudflare's STUN service at `stun.cloudflare.com` is free and unlimited.
+
+There is a free tier of 1,000 GB before any charges start. Cloudflare Realtime billing appears as a single line item on your Cloudflare bill, covering both SFU and TURN.
+
+Traffic between Cloudflare Realtime TURN and Cloudflare Realtime SFU or Cloudflare Stream (WHIP/WHEP) does not incur any charges.
+
+```mermaid
+---
+title: Cloudflare Realtime TURN pricing
+---
+flowchart LR
+    Client[TURN Client]
+    Server[TURN Server]
+
+    Client -->|"Ingress (free)"| Server
+    Server -->|"Egress (charged)"| Client
+
+    Server <-->|Not part of billing| PeerA[Peer A]
+```
+
+### Is Realtime TURN HIPAA/GDPR/FedRAMP compliant?
+
+Please view Cloudflare's [certifications and compliance resources](https://www.cloudflare.com/trust-hub/compliance-resources/) and contact your Cloudflare enterprise account manager for more information.
+
+### Is Realtime TURN end-to-end encrypted?
+
+TURN protocol, [RFC 8656](https://datatracker.ietf.org/doc/html/rfc8656), does not discuss encryption beyond wrapper protocols such as TURN over TLS. If you are using TURN with WebRTC will encrypt data at the WebRTC level.
+
+### What regions does Cloudflare Realtime TURN operate at?
+
+Cloudflare Realtime TURN server runs on [Cloudflare's global network](https://www.cloudflare.com/network) - a growing global network of thousands of machines distributed across hundreds of locations, with the notable exception of the Cloudflare's [China Network](https://developers.cloudflare.com/china-network/).
+
+### Does Cloudflare Realtime TURN use the Cloudflare Backbone or is there any "magic" Cloudflare do to speed connection up?
+
+Cloudflare Realtime TURN allocations are homed in the nearest available Cloudflare data center to the TURN client via anycast routing. If both ends of a connection are using Cloudflare Realtime TURN, Cloudflare will be able to control the routing and, if possible, route TURN packets through the Cloudflare backbone.
+
+### What is the difference between Cloudflare Realtime TURN with a enterprise plan vs self-serve (pay with your credit card) plans?
+
+There is no performance or feature level difference for Cloudflare Realtime TURN service in enterprise or self-serve plans, however those on [enterprise plans](https://www.cloudflare.com/enterprise/) will get the benefit of priority support, predictable flat-rate pricing and SLA guarantees.
+
+### Does Cloudflare Realtime TURN run in the Cloudflare China Network?
+
+Cloudflare's [China Network](https://developers.cloudflare.com/china-network/) does not participate in serving Realtime traffic and TURN traffic from China will connect to Cloudflare locations outside of China.
+
+### How long does it take for TURN activity to be available in analytics?
+
+TURN usage shows up in analytics in 30 seconds.
+
+## Technical
+
+### I need to allowlist (whitelist) Cloudflare Realtime TURN IP addresses. Which IP addresses should I use?
+
+Cloudflare Realtime TURN is easy to use by IT administrators who have strict firewalls because it requires very few IP addresses to be allowlisted compared to other providers. You must allowlist both IPv6 and IPv4 addresses.
+
+Please allowlist the following IP addresses:
+
+* `2a06:98c1:3200::1/128`
+* `2606:4700:48::1/128`
+* `141.101.90.1/32`
+* `162.159.207.1/32`
+
+Watch for IP changes
+
+Cloudflare tries to, but cannot guarantee that the IP addresses used for the TURN service won't change. If you are allowlisting IP addresses and do not have a enterprise contract, you must set up alerting that detects changes the DNS response from `turn.cloudflare.com` (A and AAAA records) and update the hardcoded IP address(es) accordingly within 14 days of the DNS change.
+
+For more details about static IPs, guarantees and other arrangements please discuss with your enterprise account team.
+
+Your enterprise team will be able to provide additional addresses to allowlist as future backup to achieve address diversity while still keeping a short list of IPs.
+
+### I would like to hardcode IP addresses used for TURN in my application to save a DNS lookup
+
+Although this is not recommended, we understand there is a very small set of circumstances where hardcoding IP addresses might be useful. In this case, you must set up alerting that detects changes the DNS response from `turn.cloudflare.com` (A and AAAA records) and update the hardcoded IP address(es) accordingly within 14 days of the DNS change. Note that this DNS response could return more than one IP address. In addition, you must set up a failover to a DNS query if there is a problem connecting to the hardcoded IP address. Cloudflare tries to, but cannot guarantee that the IP address used for the TURN service won't change unless this is in your enterprise contract. For more details about static IPs, guarantees and other arrangements please discuss with your enterprise account team.
+
+### I see that TURN IP are published above. Do you also publish IPs for STUN?
+
+TURN service at `turn.cloudflare.com` will also respond to binding requests ("STUN requests").
+
+### Does Cloudflare Realtime TURN support the expired IETF RFC draft "draft-uberti-behave-turn-rest-00"?
+
+The Cloudflare Realtime credential generation function returns a JSON structure similar to the [expired RFC draft "draft-uberti-behave-turn-rest-00"](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00), but it does not include the TTL value. If you need a response in this format, you can modify the JSON from the Cloudflare Realtime credential generation endpoint to the required format in your backend server or Cloudflare Workers.
+
+### I am observing packet loss when using Cloudflare Realtime TURN - how can I debug this?
+
+Packet loss is normal in UDP and can happen occasionally even on reliable connections. However, if you observe systematic packet loss, consider the following:
+
+* Are you sending or receiving data at a high rate (>50-100Mbps) from a single TURN client? Realtime TURN might be dropping packets to signal you to slow down.
+* Are you sending or receiving large amounts of data with very small packet sizes (high packet rate > 5-10kpps) from a single TURN client? Cloudflare Realtime might be dropping packets.
+* Are you sending packets to new unique addresses at a high rate resembling to [port scanning](https://en.wikipedia.org/wiki/Port_scanner) behavior?
+
+### I plan to use Realtime TURN at scale. What is the rate at which I can issue credentials?
+
+There is no defined limit for credential issuance. Start at 500 credentials/sec and scale up linearly. Ensure you use more than 50% of the issued credentials.
+
+### What is the maximum value I can use for TURN credential expiry time?
+
+You can set a expiration time for a credential up to 48 hours in the future. If you need your TURN allocation to last longer than this, you will need to [update](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setConfiguration) the TURN credentials.
+
+### Does Realtime TURN support IPv6?
+
+Yes. Cloudflare Realtime is available over both IPv4 and IPv6 for TURN Client to TURN server communication, however it does not issue relay addresses in IPv6 as described in [RFC 6156](https://datatracker.ietf.org/doc/html/rfc6156).
+
+### Does Realtime TURN issue IPv6 relay addresses?
+
+No. Realtime TURN will not respect `REQUESTED-ADDRESS-FAMILY` STUN attribute if specified and will issue IPv4 addresses only.
+
+### Does Realtime TURN support TCP relaying?
+
+No. Realtime does not implement [RFC6062](https://datatracker.ietf.org/doc/html/rfc6062) and will not respect `REQUESTED-TRANSPORT` STUN attribute.
+
+### I am unable to make CreatePermission or ChannelBind requests with certain IP addresses. Why is that?
+
+Cloudflare Realtime denies CreatePermission or ChannelBind requests if private IP ranges (e.g loopback addresses, linklocal unicast or multicast blocks) or IP addresses that are part of [BYOIP](https://developers.cloudflare.com/byoip/) are used.
+
+If you are a Cloudflare BYOIP customer and wish to connect to your BYOIP ranges with Realtime TURN, please reach out to your account manager for further details.
+
+### What is the maximum duration limit for a TURN allocation?
+
+There is no maximum duration limit for a TURN allocation. Per [RFC 8656 Section 3.2](https://datatracker.ietf.org/doc/html/rfc8656#section-3.2), once a relayed transport address is allocated, a client must keep the allocation alive. To do this, the client periodically sends a Refresh request to the server. The Refresh request needs to be authenticated with a valid TURN credential. The maximum duration for a credential is 48 hours. If a longer allocation is required, a new credential must be generated at least every 48 hours.
+
+### How often does Cloudflare perform maintenance on a server that is actively handling a TURN allocation? What is the impact of this?
+
+Even though this is not common, in certain scenarios TURN allocations may be disrupted. This could be caused by maintenance on the Cloudflare server handling the allocation or could be related to Internet network topology changes that cause TURN packets to arrive at a different Cloudflare datacenter. Regardless of the reason, [ICE restart](https://datatracker.ietf.org/doc/html/rfc8445#section-2.4) support by clients is highly recommended.
+
+### What will happen if TURN credentials expire while the TURN allocation is in use?
+
+Cloudflare Realtime will immediately stop billing and recording usage for analytics. After a short delay, the connection will be disconnected.
+
+</page>
+
+<page>
+---
+title: Generate Credentials · Cloudflare Realtime docs
+description: Cloudflare will issue TURN keys, but these keys cannot be used as
+  credentials with turn.cloudflare.com. To use TURN, you need to create
+  credentials with a expiring TTL value.
+lastUpdated: 2025-04-21T18:40:10.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/generate-credentials/
+  md: https://developers.cloudflare.com/realtime/turn/generate-credentials/index.md
+---
+
+Cloudflare will issue TURN keys, but these keys cannot be used as credentials with `turn.cloudflare.com`. To use TURN, you need to create credentials with a expiring TTL value.
+
+## Create a TURN key
+
+To create a TURN credential, you first need to create a TURN key using [Dashboard](https://dash.cloudflare.com/?to=/:account/calls), or the [API](https://developers.cloudflare.com/api/resources/calls/subresources/turn/methods/create/).
+
+You should keep your TURN key on the server side (don't share it with the browser/app). A TURN key is a long-term secret that allows you to generate unlimited, shorter lived TURN credentials for TURN clients.
+
+With a TURN key you can:
+
+* Generate TURN credentials that expire
+* Revoke previously issued TURN credentials
+
+## Create credentials
+
+You should generate short-lived credentials for each TURN user. In order to create credentials, you should have a back-end service that uses your TURN Token ID and API token to generate credentials. It will make an API call like this:
+
+```bash
+curl https://rtc.live.cloudflare.com/v1/turn/keys/$TURN_KEY_ID/credentials/generate-ice-servers \
+--header "Authorization: Bearer $TURN_KEY_API_TOKEN" \
+--header "Content-Type: application/json" \
+--data '{"ttl": 86400}'
+```
+
+The JSON response below can then be passed on to your front-end application:
+
+```json
+{
+  "iceServers": [
+    {
+      "urls": [
+        "stun:stun.cloudflare.com:3478",
+        "stun:stun.cloudflare.com:53",
+        "turn:turn.cloudflare.com:3478?transport=udp",
+        "turn:turn.cloudflare.com:53?transport=udp",
+        "turn:turn.cloudflare.com:3478?transport=tcp",
+        "turn:turn.cloudflare.com:80?transport=tcp",
+        "turns:turn.cloudflare.com:5349?transport=tcp",
+        "turns:turn.cloudflare.com:443?transport=tcp"
+      ],
+      "username": "bc91b63e2b5d759f8eb9f3b58062439e0a0e15893d76317d833265ad08d6631099ce7c7087caabb31ad3e1c386424e3e",
+      "credential": "ebd71f1d3edbc2b0edae3cd5a6d82284aeb5c3b8fdaa9b8e3bf9cec683e0d45fe9f5b44e5145db3300f06c250a15b4a0"
+    }
+  ]
+}
+```
+
+Note
+
+The list of returned URLs contains URLs with the primary and alternate ports. The alternate port 53 is known to be blocked by web browsers, and the TURN URL will time out if used in browsers. If you are using trickle ICE, this will not cause issues. Without trickle ICE you might want to filter out the URL with port 53 to avoid waiting for a timeout.
+
+Use `iceServers` as follows when instantiating the `RTCPeerConnection`:
+
+```js
+const myPeerConnection = new RTCPeerConnection({
+  iceServers: [
+    {
+      urls: [
+        "stun:stun.cloudflare.com:3478",
+        "stun:stun.cloudflare.com:53",
+        "turn:turn.cloudflare.com:3478?transport=udp",
+        "turn:turn.cloudflare.com:53?transport=udp",
+        "turn:turn.cloudflare.com:3478?transport=tcp",
+        "turn:turn.cloudflare.com:80?transport=tcp",
+        "turns:turn.cloudflare.com:5349?transport=tcp",
+        "turns:turn.cloudflare.com:443?transport=tcp"
+      ],
+      "username": "bc91b63e2b5d759f8eb9f3b58062439e0a0e15893d76317d833265ad08d6631099ce7c7087caabb31ad3e1c386424e3e",
+      "credential": "ebd71f1d3edbc2b0edae3cd5a6d82284aeb5c3b8fdaa9b8e3bf9cec683e0d45fe9f5b44e5145db3300f06c250a15b4a0"
+    },
+  ],
+});
+```
+
+The `ttl` value can be adjusted to expire the short lived key in a certain amount of time. This value should be larger than the time you'd expect the users to use the TURN service. For example, if you're using TURN for a video conferencing app, the value should be set to the longest video call you'd expect to happen in the app.
+
+When using short-lived TURN credentials with WebRTC, credentials can be refreshed during a WebRTC session using the `RTCPeerConnection` [`setConfiguration()`](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setConfiguration) API.
+
+## Revoke credentials
+
+Short lived credentials can also be revoked before their TTL expires with a API call like this:
+
+```bash
+curl --request POST \
+https://rtc.live.cloudflare.com/v1/turn/keys/$TURN_KEY_ID/credentials/$USERNAME/revoke \
+--header "Authorization: Bearer $TURN_KEY_API_TOKEN"
+```
+
+</page>
+
+<page>
+---
+title: Replacing existing TURN servers · Cloudflare Realtime docs
+description: If you are a existing TURN provider but would like to switch to
+  providing Cloudflare Realtime TURN for your customers, there is a few
+  considerations.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/replacing-existing/
+  md: https://developers.cloudflare.com/realtime/turn/replacing-existing/index.md
+---
+
+If you are a existing TURN provider but would like to switch to providing Cloudflare Realtime TURN for your customers, there is a few considerations.
+
+## Benefits
+
+Cloudflare Realtime TURN service can reduce tangible and untangible costs associated with TURN servers:
+
+* Server costs (AWS EC2 etc)
+* Bandwidth costs (Egress, load balancing etc)
+* Time and effort to set up a TURN process and maintenance of server
+* Scaling the servers up and down
+* Maintain the TURN server with security and feature updates
+* Maintain high availability
+
+## Recommendations
+
+### Separate environments with TURN keys
+
+When using Cloudflare Realtime TURN service at scale, consider separating environments such as "testing", "staging" or "production" with TURN keys. You can create up to 1,000 TURN keys in your account, which can be used to generate end user credentials.
+
+There is no limit to how many end-user credentials you can create with a particular TURN key.
+
+### Tag users with custom identifiers
+
+Cloudflare Realtime TURN service lets you tag each credential with a custom identifier as you generate a credential like below:
+
+```bash
+curl https://rtc.live.cloudflare.com/v1/turn/keys/$TURN_KEY_ID/credentials/generate \
+--header "Authorization: Bearer $TURN_KEY_API_TOKEN" \
+--header "Content-Type: application/json" \
+--data '{"ttl": 864000, "customIdentifier": "user4523958"}'
+```
+
+Use this field to aggregate usage for a specific user or group of users and collect analytics.
+
+### Monitor usage
+
+You can monitor account wide usage with the [GraphQL analytics API](https://developers.cloudflare.com/realtime/turn/analytics/). This is useful for keeping track of overall usage for billing purposes, watching for unexpected changes. You can get timeseries data from TURN analytics with various filters in place.
+
+### Monitor for credential abuse
+
+If you share TURN credentials with end users, credential abuse is possible. You can monitor for abuse by tagging each credential with custom identifiers and monitoring for top custom identifiers in your application via the [GraphQL analytics API](https://developers.cloudflare.com/realtime/turn/analytics/).
+
+## How to bill end users for their TURN usage
+
+When billing for TURN usage in your application, it's crucial to understand and account for adaptive sampling in TURN analytics. This system employs adaptive sampling to efficiently handle large datasets while maintaining accuracy.
+
+The sampling process in TURN analytics works on two levels:
+
+* At data collection: Usage data points may be sampled if they are generated too quickly.
+* At query time: Additional sampling may occur if the query is too complex or covers a large time range.
+
+To ensure accurate billing, write a single query that sums TURN usage per customer per time period, returning a single value. Avoid using queries that list usage for multiple customers simultaneously.
+
+By following these guidelines and understanding how TURN analytics handles sampling, you can ensure more accurate billing for your end users based on their TURN usage.
+
+Note
+
+Cloudflare Realtime only bills for traffic from Cloudflare's servers to your client, called `egressBytes`.
+
+### Example queries
+
+Incorrect approach example
+
+Querying TURN usage for multiple customers in a single query can lead to inaccurate results. This is because the usage pattern of one customer could affect the sampling rate applied to another customer's data, potentially skewing the results.
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+        }
+          limit: 100
+          orderBy: [customIdentifier_ASC]
+        ) {
+          dimensions {
+            customIdentifier
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+Below is a query that queries usage only for a single customer.
+
+```plaintext
+query{
+  viewer {
+    usage: accounts(filter: { accountTag: "8846293bd06d1af8c106d89ec1454fe6" }) {
+        callsTurnUsageAdaptiveGroups(
+          filter: {
+          datetimeMinute_gt: "2024-07-15T02:07:07Z"
+          datetimeMinute_lt: "2024-08-10T02:07:05Z"
+          customIdentifier: "myCustomer1111"
+        }
+          limit: 1
+          orderBy: [customIdentifier_ASC]
+        ) {
+          dimensions {
+            customIdentifier
+          }
+          sum {
+            egressBytes
+          }
+        }
+      }
+    }
+  }
+```
+
+</page>
+
+<page>
+---
+title: TURN Feature Matrix · Cloudflare Realtime docs
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/rfc-matrix/
+  md: https://developers.cloudflare.com/realtime/turn/rfc-matrix/index.md
+---
+
+## TURN client to TURN server protocols
+
+| Protocol | Support | Relevant specification |
+| - | - | - |
+| UDP | ✅ | [RFC 5766](https://datatracker.ietf.org/doc/html/rfc5766) |
+| TCP | ✅ | [RFC 5766](https://datatracker.ietf.org/doc/html/rfc5766) |
+| TLS | ✅ | [RFC 5766](https://datatracker.ietf.org/doc/html/rfc5766) |
+| DTLS | No | [draft-petithuguenin-tram-turn-dtls-00](http://tools.ietf.org/html/draft-petithuguenin-tram-turn-dtls-00) |
+
+## TURN client to TURN server protocols
+
+| Protocol | Support | Relevant specification |
+| - | - | - |
+| TURN (base RFC) | ✅ | [RFC 5766](https://datatracker.ietf.org/doc/html/rfc5766) |
+| TURN REST API | ✅ (See [FAQ](https://developers.cloudflare.com/realtime/turn/faq/#does-cloudflare-realtime-turn-support-the-expired-ietf-rfc-draft-draft-uberti-behave-turn-rest-00)) | [draft-uberti-behave-turn-rest-00](http://tools.ietf.org/html/draft-uberti-behave-turn-rest-00) |
+| Origin field in TURN (Multi-tenant TURN Server) | ✅ | [draft-ietf-tram-stun-origin-06](https://tools.ietf.org/html/draft-ietf-tram-stun-origin-06) |
+| ALPN support for STUN & TURN | ✅ | [RFC 7443](https://datatracker.ietf.org/doc/html/rfc7443) |
+| TURN Bandwidth draft specs | No | [draft-thomson-tram-turn-bandwidth-01](http://tools.ietf.org/html/draft-thomson-tram-turn-bandwidth-01) |
+| TURN-bis (with dual allocation) draft specs | No | [draft-ietf-tram-turnbis-04](http://tools.ietf.org/html/draft-ietf-tram-turnbis-04) |
+| TCP relaying TURN extension | No | [RFC 6062](https://datatracker.ietf.org/doc/html/rfc6062) |
+| IPv6 extension for TURN | No | [RFC 6156](https://datatracker.ietf.org/doc/html/rfc6156) |
+| oAuth third-party TURN/STUN authorization | No | [RFC 7635](https://datatracker.ietf.org/doc/html/rfc7635) |
+| DTLS support (for TURN) | No | [draft-petithuguenin-tram-stun-dtls-00](https://datatracker.ietf.org/doc/html/draft-petithuguenin-tram-stun-dtls-00) |
+| Mobile ICE (MICE) support | No | [draft-wing-tram-turn-mobility-02](http://tools.ietf.org/html/draft-wing-tram-turn-mobility-02) |
+
+</page>
+
+<page>
+---
+title: What is TURN? · Cloudflare Realtime docs
+description: TURN (Traversal Using Relays around NAT) is a protocol that assists
+  in traversing Network Address Translators (NATs) or firewalls in order to
+  facilitate peer-to-peer communications. It is an extension of the STUN
+  (Session Traversal Utilities for NAT) protocol and is defined in RFC 8656.
+lastUpdated: 2025-04-08T20:01:03.000Z
+chatbotDeprioritize: false
+source_url:
+  html: https://developers.cloudflare.com/realtime/turn/what-is-turn/
+  md: https://developers.cloudflare.com/realtime/turn/what-is-turn/index.md
+---
+
+## What is TURN?
+
+TURN (Traversal Using Relays around NAT) is a protocol that assists in traversing Network Address Translators (NATs) or firewalls in order to facilitate peer-to-peer communications. It is an extension of the STUN (Session Traversal Utilities for NAT) protocol and is defined in [RFC 8656](https://datatracker.ietf.org/doc/html/rfc8656).
+
+## How do I use TURN?
+
+Just like you would use a web browser or cURL to use the HTTP protocol, you need to use a tool or a library to use TURN protocol in your application.
+
+Most users of TURN will use it as part of a WebRTC library, such as the one in their browser or part of [Pion](https://github.com/pion/webrtc), [webrtc-rs](https://github.com/webrtc-rs/webrtc) or [libwebrtc](https://webrtc.googlesource.com/src/).
+
+You can use TURN directly in your application too. [Pion](https://github.com/pion/turn) offers a TURN client library in Golang, so does [webrtc-rs](https://github.com/webrtc-rs/webrtc/tree/master/turn) in Rust.
+
+## Key concepts to know when understanding TURN
+
+1. **NAT (Network Address Translation)**: A method used by routers to map multiple private IP addresses to a single public IP address. This is commonly done by home internet routers so multiple computers in the same network can share a single public IP address.
+
+2. **TURN Server**: A relay server that acts as an intermediary for traffic between clients behind NATs. Cloudflare Realtime TURN service is a example of a TURN server.
+
+3. **TURN Client**: An application or device that uses the TURN protocol to communicate through a TURN server. This is your application. It can be a web application using the WebRTC APIs or a native application running on mobile or desktop.
+
+4. **Allocation**: When a TURN server creates an allocation, the TURN server reserves an IP and a port unique to that client.
+
+5. **Relayed Transport Address**: The IP address and port reserved on the TURN server that others on the Internet can use to send data to the TURN client.
+
+## How TURN Works
+
+1. A TURN client sends an Allocate request to a TURN server.
+2. The TURN server creates an allocation and returns a relayed transport address to the client.
+3. The client can then give this relayed address to its peers.
+4. When a peer sends data to the relayed address, the TURN server forwards it to the client.
+5. When the client wants to send data to a peer, it sends it through the TURN server, which then forwards it to the peer.
+
+## TURN vs VPN
+
+TURN works similar to a VPN (Virtual Private Network). However TURN servers and VPNs serve different purposes and operate in distinct ways.
+
+A VPN is a general-purpose tool that encrypts all internet traffic from a device, routing it through a VPN server to enhance privacy, security, and anonymity. It operates at the network layer, affects all internet activities, and is often used to bypass geographical restrictions or secure connections on public Wi-Fi.
+
+A TURN server is a specialized tool used by specific applications, particularly for real-time communication. It operates at the application layer, only affecting traffic for applications that use it, and serves as a relay to traverse NATs and firewalls when direct connections between peers are not possible. While a VPN impacts overall internet speed and provides anonymity, a TURN server only affects the performance of specific applications using it.
+
+## Why is TURN Useful?
+
+TURN is often valuable in scenarios where direct peer-to-peer communication is impossible due to NAT or firewall restrictions. Here are some key benefits:
+
+1. **NAT Traversal**: TURN provides a way to establish connections between peers that are both behind NATs, which would otherwise be challenging or impossible.
+
+2. **Firewall Bypassing**: In environments with strict firewall policies, TURN can enable communication that would otherwise be blocked.
+
+3. **Consistent Connectivity**: TURN offers a reliable fallback method when direct or NAT-assisted connections fail.
+
+4. **Privacy**: By relaying traffic through a TURN server, the actual IP addresses of the communicating parties can be hidden from each other.
+
+5. **VoIP and Video Conferencing**: TURN is crucial for applications like Voice over IP (VoIP) and video conferencing, ensuring reliable connections regardless of network configuration.
+
+6. **Online Gaming**: TURN can help online games establish peer-to-peer connections between players behind different types of NATs.
+
+7. **IoT Device Communication**: Internet of Things (IoT) devices can use TURN to communicate when they're behind NATs or firewalls.
+
+</page>
+

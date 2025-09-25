@@ -10,7 +10,7 @@
     "lib": ["esnext"],
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "types": ["@cloudflare/workers-types"],
+    "types": [],
 
     // Other Outputs
     "sourceMap": true,
