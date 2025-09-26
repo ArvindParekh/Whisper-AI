@@ -1,0 +1,11 @@
+# AI Code Quality Assistant Environment Variables
+# Copy this file to .dev.vars and fill in your actual values
+
+# OpenAI API Key (required)
+# Get your API key from: https://platform.openai.com/account/api-keys
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Cloudflare AI Gateway (optional, for request caching and analytics)
+# Get these from your Cloudflare dashboard under AI Gateway
+AI_GATEWAY_ACCOUNT_ID=your_cloudflare_account_id
+AI_GATEWAY_ID=your_ai_gateway_id
