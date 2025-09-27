@@ -38,9 +38,15 @@
 			{
 				"class_name": "WhisperSessionDurableObject",
 				"name": "SESSIONS"
-			}
-		]
+			},
+		],
 	},
+	"kv_namespaces": [
+		{
+			"binding": "TOKENS",
+			"id": "cf_tokens"
+		}
+	],
 	"ai": {
 		"binding": "AI"
 	},
