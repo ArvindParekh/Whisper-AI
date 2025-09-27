@@ -12,20 +12,32 @@ export default class Monitor extends Command {
    static description = "Watch files and sync to Whisper AI session";
 
    static flags = {
-      sessionId: Flags.string({
+      token: Flags.string({
          required: true,
-         description: "The ID of the user's Whisper AI session",
-      }),
+         description: "The token to fetch user's session"
+      })
    };
 
    async run(): Promise<void> {
       const { flags } = await this.parse(Monitor);
+      const { token } = flags;
+      const projectName = path.basename(process.cwd());
+
+      // tell backend we're connected
+      const spinner1 = ora(`Connected to backend: ${projectName}`).start();
+      const { data } = await axios.post(`${process.env.CF_BACKEND_URL}/api/cli-connected`, {
+         token,
+         projectName,
+      });
+      const sessionId = data.sessionId;
+      spinner1.succeed();
+
       const spinner = ora("Monitoring all your files...").start();
+      console.log(`Monitoring all your files...`);
 
       // chokidar monitoring
       const currDir = process.cwd();
       const workerUrl = process.env.CF_INFERENCE_WORKER_URL!;
-      const sessionId = flags.sessionId;
 
       const watcher = chokidar.watch(currDir, {
          ignored: [

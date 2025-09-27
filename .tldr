@@ -50,9 +50,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 691,
-			"y": 174,
-			"lastActivityTimestamp": 1759010890601,
+			"x": 728,
+			"y": 264,
+			"lastActivityTimestamp": 1759011419726,
 			"meta": {}
 		},
 		{
@@ -207,6 +207,11 @@
 																			"content": [
 																				{
 																					"type": "text",
+																					"marks": [
+																						{
+																							"type": "highlight"
+																						}
+																					],
 																					"text": "update cli-command"
 																				}
 																			]
