@@ -4,7 +4,11 @@ import chokidar from "chokidar";
 import "dotenv/config";
 import fs from "fs";
 import axios from "axios";
-import type { syncFileRequestBody, syncFileResponseBody, syncFileType } from "@whisper/shared/types/watcher";
+import type {
+   syncFileRequestBody,
+   syncFileResponseBody,
+   syncFileType,
+} from "@whisper/shared/types/watcher";
 import path from "path";
 import type { AxiosResponse } from "axios";
 
@@ -14,8 +18,8 @@ export default class Monitor extends Command {
    static flags = {
       token: Flags.string({
          required: true,
-         description: "The token to fetch user's session"
-      })
+         description: "The token to fetch user's session",
+      }),
    };
 
    async run(): Promise<void> {
@@ -25,10 +29,13 @@ export default class Monitor extends Command {
 
       // tell backend we're connected
       const spinner1 = ora(`Connected to backend: ${projectName}`).start();
-      const { data } = await axios.post(`${process.env.CF_BACKEND_URL}/api/cli-connected`, {
-         token,
-         projectName,
-      });
+      const { data } = await axios.post(
+         `${process.env.CF_BACKEND_URL}/api/cli-connected`,
+         {
+            token,
+            projectName,
+         }
+      );
       const sessionId = data.sessionId;
       spinner1.succeed();
 
@@ -59,18 +66,78 @@ export default class Monitor extends Command {
          },
       });
 
-      watcher.on("ready", () => {
+      watcher.on("ready", async () => {
          spinner.succeed(`Watching ${currDir} for changes...`);
-         console.log(`Watching ${currDir} for changes...`);
-      });
+         console.log(`Syncing all files to worker: ${currDir}`);
 
+         // Get all files recursively that match the watcher's criteria
+         const getAllFiles = (dir: string, baseDir: string = dir): string[] => {
+            const files: string[] = [];
+            const items = fs.readdirSync(dir);
+
+            for (const item of items) {
+               const fullPath = path.join(dir, item);
+               const relativePath = path.relative(baseDir, fullPath);
+
+               // Skip ignored patterns
+               if (
+                  relativePath.includes("node_modules") ||
+                  relativePath.includes("dist") ||
+                  relativePath.includes("build") ||
+                  relativePath.includes(".next") ||
+                  relativePath.includes(".git")
+               ) {
+                  continue;
+               }
+
+               const stat = fs.statSync(fullPath);
+               if (stat.isDirectory()) {
+                  files.push(...getAllFiles(fullPath, baseDir));
+               } else {
+                  files.push(relativePath);
+               }
+            }
+            return files;
+         };
+
+         try {
+            const allFiles = getAllFiles(currDir);
+            console.log(`Found ${allFiles.length} files to sync`);
+
+            // batch sync requests for performance
+            const BATCH_SIZE = 10; 
+            const batches = [];
+
+            for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
+               const batch = allFiles.slice(i, i + BATCH_SIZE);
+               batches.push(batch);
+            }
+
+            // process batches in parallel
+            await Promise.all(
+               batches.map(async (batch) => {
+                  await Promise.all(
+                     batch.map((file) => syncFileToWorker(file, "add"))
+                  );
+               })
+            );
+
+            console.log(`Synced all files to worker: ${currDir}`);
+         } catch (error) {
+            console.error(`Error syncing files: ${error}`);
+         }
+      });
       const syncFileToWorker = async (filePath: string, type: syncFileType) => {
          const fileContent = fs.readFileSync(
             path.join(currDir, filePath),
             "utf8"
          );
          try {
-            const response = await axios.post<syncFileResponseBody, AxiosResponse<syncFileResponseBody>, syncFileRequestBody>(`${workerUrl}/sync`, {
+            const response = await axios.post<
+               syncFileResponseBody,
+               AxiosResponse<syncFileResponseBody>,
+               syncFileRequestBody
+            >(`${workerUrl}/sync`, {
                filePath,
                fileContent,
                sessionId,
