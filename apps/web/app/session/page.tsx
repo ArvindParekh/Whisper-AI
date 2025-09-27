@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { ConnectionStatus } from "@/components/session/connection-component"
 import { Card } from "@/components/ui/card"
 import { Copy, Bot, Settings } from "lucide-react"
 import { Navbar } from "@/components/navbar"
@@ -19,7 +20,7 @@ export default function Session() {
   const [sessionId, setSessionId] = useState("")
   const { toast } = useToast()
 
-  const NPX_COMMAND = `npx @whisper/watcher --session=`
+  const NPX_COMMAND = `npx @whisper/watcher --token=`
 
   useEffect(() => {
     const uuid = self.crypto.randomUUID();
@@ -117,44 +118,8 @@ export default function Session() {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-semibold text-white mb-6">Start Session</h2>
+                  <ConnectionStatus npxCommand={NPX_COMMAND} />                  
                   
-                  <div className="space-y-6">
-                    <div>
-                      <Label className="text-white text-sm font-medium mb-3 block">
-                        Project Name *
-                      </Label>
-                      <Input
-                        value={projectName}
-                        onChange={(e) => setProjectName(e.target.value)}
-                        placeholder="What's your project about?"
-                        className="bg-white/5 border-white/10 text-white placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500/20 rounded-lg"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-white text-sm font-medium mb-3 block">
-                        NPX Command
-                      </Label>
-                      <div className="relative">
-                        <div className="bg-black/20 border border-white/10 rounded-lg p-4 pr-12">
-                          <code className="text-sm text-gray-300 font-mono break-all">
-                            {npxCommand}
-                          </code>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleCopyCommand}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white hover:bg-white/10"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-3">
-                        Run this command in your project directory to start monitoring
-                      </p>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="pt-4">
