@@ -93,6 +93,11 @@
 											"content": [
 												{
 													"type": "text",
+													"marks": [
+														{
+															"type": "highlight"
+														}
+													],
 													"text": "persistent sessions"
 												}
 											]
@@ -111,6 +116,11 @@
 															"content": [
 																{
 																	"type": "text",
+																	"marks": [
+																		{
+																			"type": "highlight"
+																		}
+																	],
 																	"text": "two-way handshake"
 																}
 															]
@@ -173,15 +183,14 @@
 																			"content": [
 																				{
 																					"type": "text",
+																					"marks": [
+																						{
+																							"type": "highlight"
+																						}
+																					],
 																					"text": "add frontend code to implement handshake"
 																				}
 																			]
-																		},
-																		{
-																			"type": "paragraph",
-																			"attrs": {
-																				"dir": "auto"
-																			}
 																		}
 																	]
 																}
@@ -190,6 +199,28 @@
 													]
 												}
 											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "hardBreak"
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											}
 										}
 									]
 								}
@@ -205,9 +236,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 721.5078125,
-			"y": 409.71875,
-			"lastActivityTimestamp": 1759012916970,
+			"x": 728.5078125,
+			"y": 303.71875,
+			"lastActivityTimestamp": 1759013988611,
 			"meta": {}
 		},
 		{
@@ -245,7 +276,7 @@
 			"isFocused": true,
 			"devicePixelRatio": 1,
 			"isCoarsePointer": false,
-			"isHoveringCanvas": false,
+			"isHoveringCanvas": true,
 			"openMenus": [],
 			"isChangingStyle": false,
 			"isReadonly": false,
@@ -261,7 +292,7 @@
 			"selectedShapeIds": [
 				"shape:M3mRKUl36gLycpx2eaw59"
 			],
-			"hoveredShapeId": null,
+			"hoveredShapeId": "shape:M3mRKUl36gLycpx2eaw59",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
