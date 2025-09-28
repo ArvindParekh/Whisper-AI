@@ -1,5 +1,5 @@
 import { WhisperSessionDurableObject } from './session.do';
-import type { syncFileRequestBody } from '@whisper/shared/types/watcher';
+import type { syncFileType } from '@whisper/shared/types/watcher';
 
 export { WhisperSessionDurableObject };
 
@@ -26,34 +26,54 @@ export default {
 
 		// frontend registers a token
 		if (url.pathname === '/api/register-token') {
-			const { token } = await request.json() as { token: string };
+			const { token } = (await request.json()) as { token: string };
 
 			await env.TOKENS.put(token, 'waiting', {
-				expirationTtl: 300 
-			})
+				expirationTtl: 300,
+			});
 
-			return new Response(JSON.stringify({ success: true, message: "Token registered" }), {
+			return new Response(JSON.stringify({ success: true, message: 'Token registered' }), {
 				headers: {
 					'Content-Type': 'application/json',
 				},
 			});
 		}
 
+		const generateSessionId = async (projectPath: string): Promise<string> => {
+			const encoder = new TextEncoder();
+			const data = encoder.encode(projectPath);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+			return hashHex.substring(0, 32); // Use first 32 chars
+		};
 
 		// cli says it's connected
 		if (url.pathname === '/api/cli-connected') {
-			const { token, projectName } = await request.json() as { token: string, projectName: string };
+			const { token, projectName, projectPath } = (await request.json()) as { token: string; projectName: string; projectPath: string };
 
-			await env.TOKENS.put(token, JSON.stringify({
-				status: 'connected',
-				projectName,
-				timestamp: Date.now(),
-			}), {
-				// keeping for 1 day
-				expirationTtl: 3600 
-			})
-		
-			return new Response(JSON.stringify({ success: true, message: "Connected to backend" }), {
+			const sessionId = await generateSessionId(projectPath);
+
+			const id = env.SESSIONS.idFromName(sessionId);
+			const session = env.SESSIONS.get(id);
+
+			// await session.init(sessionId, projectName, token, new URL(request.url).host, env.ACCOUNT_ID, env.API_TOKEN); - maybe not here
+
+			await env.TOKENS.put(
+				token,
+				JSON.stringify({
+					status: 'connected',
+					projectName,
+					sessionId,
+					timestamp: Date.now(),
+				}),
+				{
+					// keeping for 1 day
+					expirationTtl: 3600,
+				},
+			);
+
+			return new Response(JSON.stringify({ success: true, message: 'Connected to backend', sessionId }), {
 				headers: {
 					'Content-Type': 'application/json',
 				},
@@ -69,17 +89,66 @@ export default {
 
 			const tokenData = await env.TOKENS.get(token, 'json');
 			if (!tokenData) {
-				return new Response(JSON.stringify({ success: false, message: 'expired'}));
+				return new Response(JSON.stringify({ success: false, message: 'expired' }));
 			}
 
 			if (tokenData === 'waiting') {
-				return new Response(JSON.stringify({ success: false, message: 'waiting'}));
+				return new Response(JSON.stringify({ success: false, message: 'waiting' }));
 			}
 
 			return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }));
 		}
+
+		if (url.pathname === '/api/sync') {
+			const { filePath, fileContent, sessionId, type, timestamp } = (await request.json()) as {
+				filePath: string;
+				fileContent: string;
+				sessionId: string;
+				type: string;
+				timestamp: number;
+			};
+
+			if (!sessionId) {
+				return new Response(JSON.stringify({ success: false, message: 'Session ID is required' }), { status: 400 });
+			}
+
+			const id = env.SESSIONS.idFromName(sessionId);
+			const stub = env.SESSIONS.get(id);
+
+			const result = await stub.syncFile(filePath, fileContent, sessionId, type as syncFileType, timestamp);
+
+			return new Response(JSON.stringify(result), { status: 200 });
+		}
+
+		// Voice endpoints - also use sessionId
+		const sessionId = url.searchParams.get('sessionId');
+		if (sessionId) {
+			const id = env.SESSIONS.idFromName(sessionId);
+			const stub = env.SESSIONS.get(id);
+
+			if (url.pathname.startsWith('/agentsInternal')) {
+				return stub.fetch(request);
+			}
+
+			if (url.pathname === '/init') {
+				const authHeader = request.headers.get('Authorization');
+				if (!authHeader) return new Response(null, { status: 401 });
+
+				await stub.init(sessionId, sessionId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
+				return new Response(null, { status: 200 });
+			}
+
+			if (url.pathname === '/deinit') {
+				await stub.deinit();
+				return new Response(null, { status: 200 });
+			}
+		} else {
+			return new Response('Session ID is required', { status: 400 });
+		}
+
 		return new Response('Not found', { status: 404 });
-	}
+	},
+
 	// async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 	// 	try {
 	// 		const url = new URL(request.url);
@@ -231,7 +300,7 @@ export default {
 	// 		// Initialize Realtime Agent voice pipeline
 	// 		if (request.method === 'POST' && path === '/init') {
 	// 			console.log(`[Worker] Received init request for session: ${sessionId}`);
-				
+
 	// 			if (!sessionId) {
 	// 				return new Response('Session ID required', { status: 400, headers: corsHeaders });
 	// 			}
@@ -247,16 +316,16 @@ export default {
 	// 			const authToken = authHeader.split(' ')[1] || '';
 
 	// 			console.log(`[Worker] Initializing agent for meeting: ${meetingId}`);
-				
+
 	// 			try {
 	// 				const id = env.SESSIONS.idFromName(sessionId);
 	// 				const stub = env.SESSIONS.get(id) as unknown as WhisperSessionDurableObject;
-					
+
 	// 				console.log('[Worker] Calling agent init...');
 	// 				console.log(`[Worker] Durable Object ID: ${id.toString()}`);
 	// 				console.log(`[Worker] Session ID: ${sessionId}`);
 	// 				console.log(`[Worker] Meeting ID: ${meetingId}`);
-					
+
 	// 				const result = await stub.init(
 	// 					sessionId, // agentId
 	// 					meetingId, // meetingId
@@ -265,22 +334,22 @@ export default {
 	// 					env.ACCOUNT_ID || '',
 	// 					env.API_TOKEN || '',
 	// 				);
-					
+
 	// 				console.log('[Worker] Agent init completed successfully');
 	// 				console.log(`[Worker] Init result: ${JSON.stringify(result)}`);
-					
-	// 				return new Response(JSON.stringify({ success: true, message: 'Agent initialized successfully' }), { 
-	// 					status: 200, 
-	// 					headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+
+	// 				return new Response(JSON.stringify({ success: true, message: 'Agent initialized successfully' }), {
+	// 					status: 200,
+	// 					headers: { 'Content-Type': 'application/json', ...corsHeaders }
 	// 				});
 	// 			} catch (error) {
 	// 				console.error('[Worker] Agent init failed:', error);
-	// 				return new Response(JSON.stringify({ 
-	// 					success: false, 
-	// 					error: error instanceof Error ? error.message : 'Unknown error' 
-	// 				}), { 
-	// 					status: 500, 
-	// 					headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+	// 				return new Response(JSON.stringify({
+	// 					success: false,
+	// 					error: error instanceof Error ? error.message : 'Unknown error'
+	// 				}), {
+	// 					status: 500,
+	// 					headers: { 'Content-Type': 'application/json', ...corsHeaders }
 	// 				});
 	// 			}
 	// 		}
