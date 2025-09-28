@@ -136,7 +136,7 @@ export default {
 					const response = await axios.post(
 						'https://api.realtimekit.cc/v1/meetings',
 						{ title: `Session ${sessionId}` },
-						{ headers: { Authorization: `Bearer ${env.REALTIMEKIT_API_KEY}` } },
+						{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}` } },
 					);
 
 					meetingId = response.data.id as string;
@@ -163,7 +163,7 @@ export default {
 						name: participantName,
 						preset_name: 'host',
 					},
-					{ headers: { Authorization: `Bearer ${env.REALTIMEKIT_API_KEY}` } },
+					{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}` } },
 				);
 
 				const { authToken } = response.data;
@@ -179,6 +179,7 @@ export default {
 		if (meetingId) {
 			// TODO get the same stub as above (defined uniquely by sessionId at the moment)
 			// Solution: maybe use bi-directional mapping between sessionId and meetingId, or use meetingId as the unique identifier overall
+			// Thought: There's no "delete meeting" endpoint as of now. I need to maintain a warm pool of available meeting ids and serve the user with one of the idle ones. Creating new ones for each user would be too much.
 			const id = env.SESSIONS.idFromName(meetingId);
 			const stub = env.SESSIONS.get(id);
 
