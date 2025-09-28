@@ -72,11 +72,6 @@ Please help the user with their coding question in the context of this project.`
 		}
 	}
 
-	async speak(text: string, contextId?: string): Promise<void> {
-		console.log(`[Agent] Speaking: "${text}"`);
-		await super.speak(text, contextId);
-	}
-
 	private async getProjectContext(): Promise<ProjectContext> {
 		// Access the parent SessionsDurableObject's project context
 		const parent = this.env.SESSIONS.get(this.env.SESSIONS.idFromName(this.sessionId));
@@ -277,6 +272,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		);
 		const { meeting } = rtkTransport;
 		await meeting.join();
+		await meeting.self.enableAudio();
 		// await meeting.audio.play();
 
 		// Use textProcessor.speak(), not tts.speak()

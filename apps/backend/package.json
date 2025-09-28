@@ -11,7 +11,8 @@
 	},
 	"dependencies": {
 		"@cloudflare/realtime-agents": "^0.0.6",
-		"@whisper/shared": "workspace:*"
+		"@whisper/shared": "workspace:*",
+		"axios": "^1.12.2"
 	},
 	"devDependencies": {
 		"@types/node": "^22.15.3",

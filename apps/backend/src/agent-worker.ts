@@ -1,5 +1,6 @@
 import { WhisperSessionDurableObject } from './session.do';
 import type { syncFileType } from '@whisper/shared/types/watcher';
+import axios from 'axios';
 
 export { WhisperSessionDurableObject };
 
@@ -24,6 +25,16 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 
+		// ===== TWO-WAY HANDSHAKE =====
+		const generateSessionId = async (projectPath: string): Promise<string> => {
+			const encoder = new TextEncoder();
+			const data = encoder.encode(projectPath);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+			return hashHex.substring(0, 32); // Use first 32 chars
+		};
+
 		// frontend registers a token
 		if (url.pathname === '/api/register-token') {
 			const { token } = (await request.json()) as { token: string };
@@ -38,15 +49,6 @@ export default {
 				},
 			});
 		}
-
-		const generateSessionId = async (projectPath: string): Promise<string> => {
-			const encoder = new TextEncoder();
-			const data = encoder.encode(projectPath);
-			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-			const hashArray = Array.from(new Uint8Array(hashBuffer));
-			const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-			return hashHex.substring(0, 32); // Use first 32 chars
-		};
 
 		// cli says it's connected
 		if (url.pathname === '/api/cli-connected') {
@@ -99,6 +101,7 @@ export default {
 			return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }));
 		}
 
+		// ===== FILE SYNC =====
 		if (url.pathname === '/api/sync') {
 			const { filePath, fileContent, sessionId, type, timestamp } = (await request.json()) as {
 				filePath: string;
@@ -120,7 +123,58 @@ export default {
 			return new Response(JSON.stringify(result), { status: 200 });
 		}
 
-		// Voice endpoints - also use sessionId
+		// ===== CREATE MEETING ENDPOINTS =====
+		// frontend gets same meeting id for same user
+		if (url.pathname === '/api/create-meeting') {
+			const { sessionId } = (await request.json()) as { sessionId: string };
+
+			let meetingId = await env.TOKENS.get(`meeting:${sessionId}`);
+
+			if (!meetingId) {
+				// create meeting
+				try {
+					const response = await axios.post(
+						'https://api.realtimekit.cc/v1/meetings',
+						{ title: `Session ${sessionId}` },
+						{ headers: { Authorization: `Bearer ${env.REALTIMEKIT_API_KEY}` } },
+					);
+
+					meetingId = response.data.id as string;
+
+					await env.TOKENS.put(`meeting:${sessionId}`, meetingId);
+				} catch (error) {
+					console.error('Error creating meeting:', error);
+					return Response.json({ error: 'Error creating meeting' }, { status: 500 });
+				}
+			}
+
+			return Response.json({ meetingId });
+		}
+
+		// create auth token for participant (user or agent)
+		if (url.pathname === '/api/create-participant') {
+			const { meetingId, participantName } = (await request.json()) as { meetingId: string; participantName: string };
+
+			try {
+				const response = await axios.post(
+					'https://api.realtimekit.cc/v1/participants',
+					{
+						meetingId,
+						name: participantName,
+						preset_name: 'host',
+					},
+					{ headers: { Authorization: `Bearer ${env.REALTIMEKIT_API_KEY}` } },
+				);
+
+				const { authToken } = response.data;
+				return Response.json({ authToken });
+			} catch (error) {
+				console.error('Error creating participant:', error);
+				return Response.json({ error: 'Error creating participant' }, { status: 500 });
+			}
+		}
+
+		// ===== VOICE ENDPOINTS =====
 		const sessionId = url.searchParams.get('sessionId');
 		if (sessionId) {
 			const id = env.SESSIONS.idFromName(sessionId);
