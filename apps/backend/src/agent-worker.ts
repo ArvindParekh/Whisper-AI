@@ -175,9 +175,11 @@ export default {
 		}
 
 		// ===== VOICE ENDPOINTS =====
-		const sessionId = url.searchParams.get('sessionId');
-		if (sessionId) {
-			const id = env.SESSIONS.idFromName(sessionId);
+		const meetingId = url.searchParams.get('meetingId');
+		if (meetingId) {
+			// TODO get the same stub as above (defined uniquely by sessionId at the moment)
+			// Solution: maybe use bi-directional mapping between sessionId and meetingId, or use meetingId as the unique identifier overall
+			const id = env.SESSIONS.idFromName(meetingId);
 			const stub = env.SESSIONS.get(id);
 
 			if (url.pathname.startsWith('/agentsInternal')) {
@@ -188,7 +190,7 @@ export default {
 				const authHeader = request.headers.get('Authorization');
 				if (!authHeader) return new Response(null, { status: 401 });
 
-				await stub.init(sessionId, sessionId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
+				await stub.init(meetingId, meetingId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
 				return new Response(null, { status: 200 });
 			}
 
@@ -197,7 +199,7 @@ export default {
 				return new Response(null, { status: 200 });
 			}
 		} else {
-			return new Response('Session ID is required', { status: 400 });
+			return new Response('Meeting ID is required', { status: 400 });
 		}
 
 		return new Response('Not found', { status: 404 });

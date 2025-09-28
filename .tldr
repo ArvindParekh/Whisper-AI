@@ -214,17 +214,56 @@
 												{
 													"type": "text",
 													"text": "meeting joining logic"
-												},
-												{
-													"type": "hardBreak"
 												}
 											]
 										},
 										{
-											"type": "paragraph",
-											"attrs": {
-												"dir": "auto"
-											}
+											"type": "bulletList",
+											"content": [
+												{
+													"type": "listItem",
+													"content": [
+														{
+															"type": "paragraph",
+															"attrs": {
+																"dir": "auto"
+															},
+															"content": [
+																{
+																	"type": "text",
+																	"text": "backend - half left"
+																}
+															]
+														}
+													]
+												},
+												{
+													"type": "listItem",
+													"content": [
+														{
+															"type": "paragraph",
+															"attrs": {
+																"dir": "auto"
+															},
+															"content": [
+																{
+																	"type": "text",
+																	"text": "frontend"
+																},
+																{
+																	"type": "hardBreak"
+																}
+															]
+														},
+														{
+															"type": "paragraph",
+															"attrs": {
+																"dir": "auto"
+															}
+														}
+													]
+												}
+											]
 										}
 									]
 								}
@@ -240,9 +279,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 417.5078125,
-			"y": 301.921875,
-			"lastActivityTimestamp": 1759037542167,
+			"x": 612.5078125,
+			"y": 334.921875,
+			"lastActivityTimestamp": 1759039806655,
 			"meta": {}
 		},
 		{
@@ -262,8 +301,8 @@
 			"screenBounds": {
 				"x": 0,
 				"y": 0,
-				"w": 1659,
-				"h": 961
+				"w": 1142,
+				"h": 655
 			},
 			"insets": [
 				false,
