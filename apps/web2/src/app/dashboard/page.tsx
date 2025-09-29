@@ -57,7 +57,7 @@ const recentActivity = [
 
 export default function DashboardPage() {
   const [token] = useState(crypto.randomUUID());
-  const [status, setStatus] = useState('waiting');
+  const [status, setStatus] = useState('ready-to-join');
   const [projectInfo, setProjectInfo] = useState<{ name: string, sessionId: string, projectId: string } | null>(null);
   const [meetingId, setMeetingId] = useState<string | null>(null);
 
