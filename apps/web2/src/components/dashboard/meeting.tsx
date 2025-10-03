@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-// import { CustomStates, SetState } from './types';
 import { RealtimeKitProvider, useRealtimeKitClient } from "@cloudflare/realtimekit-react";
 import MyMeetingUI from "./my-meeting-ui";
 

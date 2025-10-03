@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const [token] = useState(crypto.randomUUID());
   const [status, setStatus] = useState('ready-to-join');
   const [projectInfo, setProjectInfo] = useState<{ name: string, sessionId: string, projectId: string } | null>(null);
-  const [meetingId, setMeetingId] = useState<string | null>("bbbfcff0-14cf-4bec-9e37-a35d89fecf7e");
+  const [meetingId, setMeetingId] = useState<string | null>(null);
   const router = useRouter();
 
    useEffect(() => {
@@ -70,7 +70,7 @@ export default function DashboardPage() {
     const registerToken = async () => {
         const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/register-token`, { token });
         if (res.status === 200) {
-            startPolling();
+            setUpMeeting("123");
         }
     }
 
