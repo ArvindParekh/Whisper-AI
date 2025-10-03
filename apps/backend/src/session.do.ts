@@ -65,7 +65,6 @@ Please help the user with their coding question in the context of this project.`
 			const aiResponse = response.response || 'I apologize, but I encountered an issue generating a response.';
 			console.log(`[Agent] AI response: "${aiResponse}"`);
 			reply(aiResponse);
-			this.speak(aiResponse);
 		} catch (error) {
 			console.error('[Agent] Error generating AI response:', error);
 			reply('Sorry, I encountered an error processing your request.');
@@ -275,8 +274,14 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		await meeting.self.enableAudio();
 		// await meeting.audio.play();
 
-		// Use textProcessor.speak(), not tts.speak()
-		textProcessor.speak('Testing audio output');
+		meeting.participants.joined.on('participantJoined', (participant) => {
+			textProcessor.speak(`Participant Joined ${participant.name}`);
+		});
+		meeting.participants.joined.on('participantLeft', (participant) => {
+			textProcessor.speak(`Participant Left ${participant.name}`);
+		});
+
+		meeting.chat.sendTextMessage('Hello, how can I help you today?');
 
 		console.log('[Agent] Init complete');
 	}

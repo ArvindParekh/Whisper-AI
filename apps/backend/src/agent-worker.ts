@@ -39,7 +39,7 @@ export default {
 		if (url.pathname === '/api/register-token') {
 			const { token } = (await request.json()) as { token: string };
 
-			await env.TOKENS.put(token, 'waiting', {
+			await env.WHISPER_TOKEN_STORE.put(token, 'waiting', {
 				expirationTtl: 300,
 			});
 
@@ -61,7 +61,7 @@ export default {
 
 			// await session.init(sessionId, projectName, token, new URL(request.url).host, env.ACCOUNT_ID, env.API_TOKEN); - maybe not here
 
-			await env.TOKENS.put(
+			await env.WHISPER_TOKEN_STORE.put(
 				token,
 				JSON.stringify({
 					status: 'connected',
@@ -89,7 +89,7 @@ export default {
 				return new Response(JSON.stringify({ success: false, error: 'Token is required' }), { status: 400 });
 			}
 
-			const tokenData = await env.TOKENS.get(token, 'json');
+			const tokenData = await env.WHISPER_TOKEN_STORE.get(token, 'json');
 			if (!tokenData) {
 				return new Response(JSON.stringify({ success: false, message: 'expired' }));
 			}
@@ -128,7 +128,7 @@ export default {
 		if (url.pathname === '/api/create-meeting') {
 			const { sessionId } = (await request.json()) as { sessionId: string };
 
-			let meetingId = await env.TOKENS.get(`meeting:${sessionId}`);
+			let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${sessionId}`);
 
 			if (!meetingId) {
 				// create meeting
@@ -141,7 +141,7 @@ export default {
 
 					meetingId = response.data.id as string;
 
-					await env.TOKENS.put(`meeting:${sessionId}`, meetingId);
+					await env.WHISPER_TOKEN_STORE.put(`meeting:${sessionId}`, meetingId);
 				} catch (error) {
 					console.error('Error creating meeting:', error);
 					return Response.json({ error: 'Error creating meeting' }, { status: 500 });

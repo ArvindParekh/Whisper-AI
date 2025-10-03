@@ -41,19 +41,21 @@
 			},
 		],
 	},
-	"kv_namespaces": [
-		{
-			"binding": "TOKENS",
-			"id": "cf_tokens"
-		}
-	],
 	"ai": {
 		"binding": "AI"
 	},
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"observability": {
 		"enabled": true
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "WHISPER_TOKEN_STORE",
+			"id": "d6ff7cd8f3454349ba09c915a37d6c2e"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
