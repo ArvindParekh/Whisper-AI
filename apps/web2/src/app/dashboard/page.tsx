@@ -9,7 +9,10 @@ import { cn } from "@/lib/utils"
 import CopyButton from "@/components/dashboard/copy-button"
 import axios from "axios"
 import { Button } from "@/components/ui/button"
-
+import MyMeeting from "@/components/dashboard/meeting"
+import RtkJoin from "@/components/dashboard/rtk-join-meeting"
+import { useRouter } from "next/navigation"
+                                                          
 const recentProjects = [
   {
     name: "copair-frontend",
@@ -59,7 +62,8 @@ export default function DashboardPage() {
   const [token] = useState(crypto.randomUUID());
   const [status, setStatus] = useState('ready-to-join');
   const [projectInfo, setProjectInfo] = useState<{ name: string, sessionId: string, projectId: string } | null>(null);
-  const [meetingId, setMeetingId] = useState<string | null>(null);
+  const [meetingId, setMeetingId] = useState<string | null>("bbbfcff0-14cf-4bec-9e37-a35d89fecf7e");
+  const router = useRouter();
 
    useEffect(() => {
     // register token with backend
@@ -105,18 +109,18 @@ export default function DashboardPage() {
 
     }
 
-    const joinSession = async (meetingId: string) => {
-        // get auth token for the user to join the meeting
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create-participant`, { meetingId, participantName: projectInfo?.name });
-        const {authToken} = res.data;
+    // const joinSession = async (meetingId: string) => {
+    //     // get auth token for the user to join the meeting
+    //     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create-participant`, { meetingId, participantName: projectInfo?.name });
+    //     const {authToken} = res.data;
 
-        initMeeting({
-          authToken,
-          defaults: { audio: true, video: true },
-        });
+    //     initMeeting({
+    //       authToken,
+    //       defaults: { audio: true, video: true },
+    //     });
 
-        setStatus('in-call');
-    }
+    //     setStatus('in-call');
+    // }
 
   return (
     <div className="min-h-screen bg-background">
@@ -228,10 +232,9 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {status === 'ready-to-join' && meetingId && <Button onClick={() => joinSession(meetingId)}>
-              <Phone className="w-4 h-4 mr-2" />
-              Join Session
-            </Button>}
+            {status === 'ready-to-join' && meetingId && <Button onClick={() => {
+              router.push(`/meetings/${meetingId}`);
+            }}>Join Session</Button>}
 
             {/* Recent Activity */}
             <Card className="glass-card">
