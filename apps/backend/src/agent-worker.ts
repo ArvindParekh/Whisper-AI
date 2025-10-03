@@ -25,114 +25,131 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 
-		// ===== TWO-WAY HANDSHAKE =====
-		const generateSessionId = async (projectPath: string): Promise<string> => {
-			const encoder = new TextEncoder();
-			const data = encoder.encode(projectPath);
-			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-			const hashArray = Array.from(new Uint8Array(hashBuffer));
-			const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-			return hashHex.substring(0, 32); // Use first 32 chars
+		// cors headers for all responses
+		const corsHeaders = {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		};
 
-		// frontend registers a token
-		if (url.pathname === '/api/register-token') {
-			const { token } = (await request.json()) as { token: string };
-
-			await env.WHISPER_TOKEN_STORE.put(token, 'waiting', {
-				expirationTtl: 300,
-			});
-
-			return new Response(JSON.stringify({ success: true, message: 'Token registered' }), {
-				headers: {
-					'Content-Type': 'application/json',
-				},
+		// handle cors preflight requests
+		if (request.method === 'OPTIONS') {
+			return new Response(null, {
+				status: 204,
+				headers: corsHeaders,
 			});
 		}
 
-		// cli says it's connected
-		if (url.pathname === '/api/cli-connected') {
-			const { token, projectName, projectPath } = (await request.json()) as { token: string; projectName: string; projectPath: string };
-
-			const sessionId = await generateSessionId(projectPath);
-
-			const id = env.SESSIONS.idFromName(sessionId);
-			const session = env.SESSIONS.get(id);
-
-			// await session.init(sessionId, projectName, token, new URL(request.url).host, env.ACCOUNT_ID, env.API_TOKEN); - maybe not here
-
-			await env.WHISPER_TOKEN_STORE.put(
-				token,
-				JSON.stringify({
-					status: 'connected',
-					projectName,
-					sessionId,
-					timestamp: Date.now(),
-				}),
-				{
-					// keeping for 1 day
-					expirationTtl: 3600,
-				},
-			);
-
-			return new Response(JSON.stringify({ success: true, message: 'Connected to backend', sessionId }), {
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-		}
-
-		// frontend polls for token status
-		if (url.pathname === '/api/check-token') {
-			const token = url.searchParams.get('token');
-			if (!token) {
-				return new Response(JSON.stringify({ success: false, error: 'Token is required' }), { status: 400 });
-			}
-
-			const tokenData = await env.WHISPER_TOKEN_STORE.get(token, 'json');
-			if (!tokenData) {
-				return new Response(JSON.stringify({ success: false, message: 'expired' }));
-			}
-
-			if (tokenData === 'waiting') {
-				return new Response(JSON.stringify({ success: false, message: 'waiting' }));
-			}
-
-			return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }));
-		}
-
-		// ===== FILE SYNC =====
-		if (url.pathname === '/api/sync') {
-			const { filePath, fileContent, sessionId, type, timestamp } = (await request.json()) as {
-				filePath: string;
-				fileContent: string;
-				sessionId: string;
-				type: string;
-				timestamp: number;
+		try {
+			// ===== TWO-WAY HANDSHAKE =====
+			const generateSessionId = async (projectPath: string): Promise<string> => {
+				const encoder = new TextEncoder();
+				const data = encoder.encode(projectPath);
+				const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+				const hashArray = Array.from(new Uint8Array(hashBuffer));
+				const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+				return hashHex.substring(0, 32); // Use first 32 chars
 			};
 
-			if (!sessionId) {
-				return new Response(JSON.stringify({ success: false, message: 'Session ID is required' }), { status: 400 });
+			// frontend registers a token
+			if (url.pathname === '/api/register-token') {
+				const { token } = (await request.json()) as { token: string };
+
+				await env.WHISPER_TOKEN_STORE.put(token, JSON.stringify('waiting'), {
+					expirationTtl: 300,
+				});
+
+				return new Response(JSON.stringify({ success: true, message: 'Token registered' }), {
+					headers: {
+						'Content-Type': 'application/json',
+						...corsHeaders,
+					},
+				});
 			}
 
-			const id = env.SESSIONS.idFromName(sessionId);
-			const stub = env.SESSIONS.get(id);
+			// cli says it's connected
+			if (url.pathname === '/api/cli-connected') {
+				const { token, projectName, projectPath } = (await request.json()) as { token: string; projectName: string; projectPath: string };
 
-			const result = await stub.syncFile(filePath, fileContent, sessionId, type as syncFileType, timestamp);
+				const sessionId = await generateSessionId(projectPath);
 
-			return new Response(JSON.stringify(result), { status: 200 });
-		}
+				const id = env.SESSIONS.idFromName(sessionId);
+				const session = env.SESSIONS.get(id);
 
-		// ===== CREATE MEETING ENDPOINTS =====
-		// frontend gets same meeting id for same user
-		if (url.pathname === '/api/create-meeting') {
-			const { sessionId } = (await request.json()) as { sessionId: string };
+				// await session.init(sessionId, projectName, token, new URL(request.url).host, env.ACCOUNT_ID, env.API_TOKEN); - maybe not here
 
-			let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${sessionId}`);
+				await env.WHISPER_TOKEN_STORE.put(
+					token,
+					JSON.stringify({
+						status: 'connected',
+						projectName,
+						sessionId,
+						timestamp: Date.now(),
+					}),
+					{
+						// keeping for 1 day
+						expirationTtl: 3600,
+					},
+				);
 
-			if (!meetingId) {
-				// create meeting
-				try {
+				return new Response(JSON.stringify({ success: true, message: 'Connected to backend', sessionId }), {
+					headers: {
+						'Content-Type': 'application/json',
+						...corsHeaders,
+					},
+				});
+			}
+
+			// frontend polls for token status
+			if (url.pathname === '/api/check-token') {
+				const token = url.searchParams.get('token');
+				if (!token) {
+					return new Response(JSON.stringify({ success: false, error: 'Token is required' }), { status: 400, headers: corsHeaders });
+				}
+
+				const tokenData = await env.WHISPER_TOKEN_STORE.get(token, 'json');
+				if (!tokenData) {
+					return new Response(JSON.stringify({ success: false, message: 'expired' }), { headers: corsHeaders });
+				}
+
+				if (tokenData === 'waiting') {
+					return new Response(JSON.stringify({ success: false, message: 'waiting' }), { headers: corsHeaders });
+				}
+
+				return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }), { headers: corsHeaders });
+			}
+
+			// ===== FILE SYNC =====
+			if (url.pathname === '/api/sync') {
+				const { filePath, fileContent, sessionId, type, timestamp } = (await request.json()) as {
+					filePath: string;
+					fileContent: string;
+					sessionId: string;
+					type: string;
+					timestamp: number;
+				};
+
+				if (!sessionId) {
+					return new Response(JSON.stringify({ success: false, message: 'Session ID is required' }), { status: 400, headers: corsHeaders });
+				}
+
+				const id = env.SESSIONS.idFromName(sessionId);
+				const stub = env.SESSIONS.get(id);
+
+				const result = await stub.syncFile(filePath, fileContent, sessionId, type as syncFileType, timestamp);
+
+				return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
+			}
+
+			// ===== CREATE MEETING ENDPOINTS =====
+			// frontend gets same meeting id for same user
+			if (url.pathname === '/api/create-meeting') {
+				const { sessionId } = (await request.json()) as { sessionId: string };
+
+				let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${sessionId}`);
+
+				if (!meetingId) {
+					// create meeting
 					const response = await axios.post(
 						'https://api.realtimekit.cc/v1/meetings',
 						{ title: `Session ${sessionId}` },
@@ -142,68 +159,63 @@ export default {
 					meetingId = response.data.id as string;
 
 					await env.WHISPER_TOKEN_STORE.put(`meeting:${sessionId}`, meetingId);
-				} catch (error) {
-					console.error('Error creating meeting:', error);
-					return Response.json({ error: 'Error creating meeting' }, { status: 500 });
 				}
+
+				return Response.json({ meetingId }, { headers: corsHeaders });
 			}
 
-			return Response.json({ meetingId });
-		}
+			// create auth token for participant (user or agent)
+			if (url.pathname === '/api/create-participant') {
+				const { meetingId, participantName } = (await request.json()) as { meetingId: string; participantName: string };
 
-		// create auth token for participant (user or agent)
-		if (url.pathname === '/api/create-participant') {
-			const { meetingId, participantName } = (await request.json()) as { meetingId: string; participantName: string };
-
-			try {
 				const response = await axios.post(
-					'https://api.realtimekit.cc/v1/participants',
+					`https://api.realtime.cloudflare.com/v2/meetings/${meetingId}/participants`,
 					{
-						meetingId,
 						name: participantName,
-						preset_name: 'host',
+						preset_name: 'Whisper',
+						custom_participant_id: '223', //TODO: change this later
 					},
 					{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}` } },
 				);
 
-				const { authToken } = response.data;
-				return Response.json({ authToken });
-			} catch (error) {
-				console.error('Error creating participant:', error);
-				return Response.json({ error: 'Error creating participant' }, { status: 500 });
+				const { token } = response.data.data;
+				return Response.json({ authToken: token }, { headers: corsHeaders });
 			}
+
+			// ===== VOICE ENDPOINTS =====
+			const meetingId = url.searchParams.get('meetingId');
+			if (meetingId) {
+				// TODO get the same stub as above (defined uniquely by sessionId at the moment)
+				// Solution: maybe use bi-directional mapping between sessionId and meetingId, or use meetingId as the unique identifier overall
+				// Thought: There's no "delete meeting" endpoint as of now. I need to maintain a warm pool of available meeting ids and serve the user with one of the idle ones. Creating new ones for each user would be too much.
+				const id = env.SESSIONS.idFromName(meetingId);
+				const stub = env.SESSIONS.get(id);
+
+				if (url.pathname.startsWith('/agentsInternal')) {
+					return stub.fetch(request);
+				}
+
+				if (url.pathname === '/init') {
+					const authHeader = request.headers.get('Authorization');
+					if (!authHeader) return new Response(null, { status: 401 });
+
+					await stub.init(meetingId, meetingId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
+					return new Response(null, { status: 200, headers: corsHeaders });
+				}
+
+				if (url.pathname === '/deinit') {
+					await stub.deinit();
+					return new Response(null, { status: 200, headers: corsHeaders });
+				}
+			} else {
+				return new Response('Meeting ID is required', { status: 400, headers: corsHeaders });
+			}
+
+			return new Response('Not found', { status: 404, headers: corsHeaders });
+		} catch (error) {
+			console.error('Worker error:', error);
+			return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500, headers: corsHeaders });
 		}
-
-		// ===== VOICE ENDPOINTS =====
-		const meetingId = url.searchParams.get('meetingId');
-		if (meetingId) {
-			// TODO get the same stub as above (defined uniquely by sessionId at the moment)
-			// Solution: maybe use bi-directional mapping between sessionId and meetingId, or use meetingId as the unique identifier overall
-			// Thought: There's no "delete meeting" endpoint as of now. I need to maintain a warm pool of available meeting ids and serve the user with one of the idle ones. Creating new ones for each user would be too much.
-			const id = env.SESSIONS.idFromName(meetingId);
-			const stub = env.SESSIONS.get(id);
-
-			if (url.pathname.startsWith('/agentsInternal')) {
-				return stub.fetch(request);
-			}
-
-			if (url.pathname === '/init') {
-				const authHeader = request.headers.get('Authorization');
-				if (!authHeader) return new Response(null, { status: 401 });
-
-				await stub.init(meetingId, meetingId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
-				return new Response(null, { status: 200 });
-			}
-
-			if (url.pathname === '/deinit') {
-				await stub.deinit();
-				return new Response(null, { status: 200 });
-			}
-		} else {
-			return new Response('Meeting ID is required', { status: 400 });
-		}
-
-		return new Response('Not found', { status: 404 });
 	},
 
 	// async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
