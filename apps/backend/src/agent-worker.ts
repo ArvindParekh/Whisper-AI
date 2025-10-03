@@ -144,21 +144,20 @@ export default {
 			// ===== CREATE MEETING ENDPOINTS =====
 			// frontend gets same meeting id for same user
 			if (url.pathname === '/api/create-meeting') {
-				const { sessionId } = (await request.json()) as { sessionId: string };
+				const { projectId } = (await request.json()) as { projectId: string };
 
-				let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${sessionId}`);
+				let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${projectId}`);
 
 				if (!meetingId) {
 					// create meeting
 					const response = await axios.post(
-						'https://api.realtimekit.cc/v1/meetings',
-						{ title: `Session ${sessionId}` },
-						{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}` } },
+						`https://api.realtime.cloudflare.com/v2/meetings`,
+						{ title: `Session ${projectId}` },
+						{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}`, 'Content-Type': 'application/json' } },
 					);
 
-					meetingId = response.data.id as string;
-
-					await env.WHISPER_TOKEN_STORE.put(`meeting:${sessionId}`, meetingId);
+					meetingId = response.data.data.id;
+					await env.WHISPER_TOKEN_STORE.put(`meeting:${projectId}`, meetingId!);
 				}
 
 				return Response.json({ meetingId }, { headers: corsHeaders });
