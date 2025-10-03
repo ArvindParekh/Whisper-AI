@@ -70,7 +70,7 @@ export default function DashboardPage() {
     const registerToken = async () => {
         const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/register-token`, { token });
         if (res.status === 200) {
-            setUpMeeting("123");
+          startPolling();
         }
     }
 
@@ -105,8 +105,6 @@ export default function DashboardPage() {
 
         setStatus('ready-to-join');
         setMeetingId(data.meetingId);
-
-
     }
 
     // const joinSession = async (meetingId: string) => {
