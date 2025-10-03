@@ -270,9 +270,6 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 			apiToken,
 		);
 		const { meeting } = rtkTransport;
-		await meeting.join();
-		await meeting.self.enableAudio();
-		// await meeting.audio.play();
 
 		meeting.participants.joined.on('participantJoined', (participant) => {
 			textProcessor.speak(`Participant Joined ${participant.name}`);
@@ -281,8 +278,15 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 			textProcessor.speak(`Participant Left ${participant.name}`);
 		});
 
-		meeting.chat.sendTextMessage('Hello, how can I help you today?');
+		await meeting.join();
+		await meeting.self.enableAudio();
+		// await meeting.audio.play();
+		await meeting.chat.sendTextMessage('Hello, how are you?');
 
+		setTimeout(() => {
+			console.log('Agent speaking test:');
+			textProcessor.speak('Testing audio output');
+		}, 5000);
 		console.log('[Agent] Init complete');
 	}
 
