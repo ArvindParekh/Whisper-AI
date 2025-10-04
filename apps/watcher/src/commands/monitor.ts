@@ -5,6 +5,7 @@ import { Logger } from "../utils/logger.js";
 import { SessionManager } from "../core/SessionManager.js";
 import { FileSyncer } from "../core/FileSyncer.js";
 import { FileWatcher } from "../core/FileWatcher.js";
+import "dotenv/config";
 
 export default class Monitor extends Command {
    static description = "Watch files and sync to Whisper AI session";
@@ -23,10 +24,9 @@ export default class Monitor extends Command {
       const logger = new Logger();
       const projectName = path.basename(process.cwd());
       const baseDir = process.cwd();
-      const backendUrl = process.env.CF_BACKEND_URL!;
       const workerUrl = process.env.CF_INFERENCE_WORKER_URL!;
 
-      if (!backendUrl || !workerUrl) {
+      if (!workerUrl) {
          logger.error(
             "Missing environment variables: CF_BACKEND_URL or CF_INFERENCE_WORKER_URL"
          );
@@ -35,8 +35,10 @@ export default class Monitor extends Command {
 
       try {
          // step 1 - connect and get session
-         const sessionManager = new SessionManager(backendUrl, logger);
+         const sessionManager = new SessionManager(workerUrl, logger);
          const sessionId = await sessionManager.connect(token, projectName);
+
+         console.log("Session Id: ", sessionId);
 
          // step 2 - initialize file syncer
          const fileSyncer = new FileSyncer(
