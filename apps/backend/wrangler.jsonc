@@ -5,7 +5,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "agents-backend",
-	"main": "src/agent-worker.ts",
+	"main": "src/workers/main.ts",
 	"compatibility_date": "2025-09-24",
 	"migrations": [
 		{
