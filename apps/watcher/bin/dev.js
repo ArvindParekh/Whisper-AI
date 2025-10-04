@@ -1,7 +1,7 @@
-#!/usr/bin/env node_modules/.bin/ts-node
+#!/usr/bin/env -S node --loader ts-node/esm --no-warnings=ExperimentalWarning
 
-// eslint-disable-next-line unicorn/prefer-top-level-await
-;(async () => {
-  const oclif = await import('@oclif/core')
-  await oclif.execute({development: true, dir: __dirname})
-})()
+import {execute, settings} from '@oclif/core'
+
+settings.performanceEnabled = true
+
+await execute({development: true, dir: import.meta.url})
