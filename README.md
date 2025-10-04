@@ -1,135 +1,160 @@
-# Turborepo starter
+# Whisper: Voice-First AI Pair Programming
 
-This Turborepo starter is maintained by the Turborepo core team.
+A next-generation developer tool that brings the power of voice-based AI pair programming to your local development environment. Whisper acts as an ambient AI co-pilot that you can have natural conversations with while coding.
 
-## Using this example
+## 🚀 Key Features
 
-Run the following command:
+- **Voice-First Interface**: Natural conversations with AI through voice, just like talking to a senior engineer
+- **Real-Time Context**: Full awareness of your local codebase through live file syncing
+- **Proactive Assistance**: AI can perform tasks like creating GitHub issues from TODO comments
+- **Seamless Integration**: Simple setup with a single `npx` command
+- **Modern Stack**: Built entirely on serverless architecture using Cloudflare's edge computing platform
 
-```sh
-npx create-turbo@latest
+## 🏗 Architecture
+
+```mermaid
+graph TD
+    subgraph "User's Environment"
+        A[Local Files] --> B[Watcher Script]
+        C[Browser] --> D[Voice/Video Interface]
+        P[WebRTC Client]
+    end
+
+    subgraph "Cloudflare Edge"
+        E[Ingestion Worker]
+        F[Session DO]
+        G[AI Worker]
+        H[Workflows]
+        I[WebSocket Server]
+        K[TURN/STUN Server]
+        L[Media Server]
+    end
+
+    B -->|File Updates| E
+    E -->|Update State| F
+    D <-->|WebSocket| I
+    I <--> F
+    F -->|Context| G
+    G -->|Response| F
+    F -->|Triggers| H
+    H -->|External Actions| J[GitHub/External APIs]
+
+    P <-->|Signaling| I
+    P <-->|Media Stream| K
+    K <-->|Media Processing| L
+    L -->|Audio Processing| G
+
+    style A fill:#f9f,stroke:#333
+    style C fill:#bbf,stroke:#333
+    style F fill:#bfb,stroke:#333
+    style G fill:#fbb,stroke:#333
+    style P fill:#fbf,stroke:#333
+    style L fill:#ff9,stroke:#333
 ```
 
-## What's inside?
+The system consists of three main components:
 
-This Turborepo includes the following packages/apps:
+1. **Local Client (The Eyes)**
+   - Watches for file changes in your project
+   - Syncs updates to the cloud in real-time
+   - Minimal footprint Node.js script
 
-### Apps and Packages
+2. **Web Frontend (The Voice)**
+   - React-based web application
+   - Handles voice recognition and synthesis
+   - Real-time WebSocket communication
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+3. **Cloudflare Backend (The Brain)**
+   - Session management with Durable Objects
+   - AI processing with Workers
+   - Real-time communication server
+   - Workflow automation for tasks
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 💻 Tech Stack
 
-### Utilities
+- **Frontend**
+  - React + Vite
+  - Tailwind CSS
+  - WebRTC for real-time communication
+  - Web Speech API for voice synthesis
+  - TypeScript
 
-This Turborepo has some additional tools already setup for you:
+- **Backend**
+  - Cloudflare Workers
+  - Durable Objects
+  - Cloudflare Workflows
+  - Cloudflare Realtime
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- **Local Tools**
+  - Node.js
+  - chokidar for file watching
+  - npx for easy distribution
 
-### Build
+- **Development**
+  - Turborepo
+  - TypeScript
+  - ESLint
+  - Prettier
 
-To build all apps and packages, run the following command:
+## 🚦 Getting Started
 
-```
-cd my-turborepo
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/whisper.git
+   cd whisper
+   ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+3. Set up environment variables:
+   ```bash
+   # Create .env files in apps/web and apps/backend
+   cp apps/web/.env.example apps/web/.env
+   cp apps/backend/.env.example apps/backend/.env
+   ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+4. Start the development environment:
+   ```bash
+   pnpm dev
+   ```
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 📁 Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+whisper/
+├── apps/
+│   ├── backend/     # Cloudflare Workers backend
+│   ├── docs/        # Documentation site
+│   ├── watcher/     # Local file sync client
+│   └── web/         # Main web application
+├── packages/
+│   ├── eslint-config/   # Shared ESLint configurations
+│   ├── shared/          # Shared TypeScript types
+│   ├── typescript-config/  # Shared TS configs
+│   └── ui/              # Shared UI components
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## 🛠 Development
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+This is a Turborepo project. Here are some common commands:
 
+```bash
+# Run development server
+pnpm dev
+
+# Build all packages and apps
+pnpm build
+
+# Run linting
+pnpm lint
+
+# Run type checking
+pnpm typecheck
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+## 📄 License
 
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+MIT License - see the [LICENSE](LICENSE) file for details.
