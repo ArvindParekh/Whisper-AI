@@ -20,9 +20,9 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Copair - AI Voice Pair Programming",
-  description: "Voice-first AI that understands your entire codebase. Pair programming at the speed of thought.",
-  generator: "Copair",
+  title: "Whisper AI - Your AI Thinking Partner",
+  description: "Voice-first AI pair programming that helps you make better architectural decisions. Stay in flow, think strategically, build smarter.",
+  generator: "Whisper AI",
 }
 
 export default function RootLayout({
