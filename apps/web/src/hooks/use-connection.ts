@@ -48,8 +48,9 @@ export function useConnection() {
           try {
             const res = await axios.get(`${backendUrl}/api/check-token?token=${token}`)
             const data = res.data
+            console.log(data);
 
-            if (data.status === "connected") {
+            if (data.message === "connected") {
               clearInterval(pollInterval)
               setStatus("connected")
               setProjectInfo({
