@@ -13,7 +13,8 @@ export default {
 		const url = new URL(request.url);
 		const pathname = url.pathname;
 
-		preflightMiddleware(request);
+		const preflightResponse = preflightMiddleware(request);
+		if (preflightResponse) return preflightResponse;
 
 		try {
 			// handle routes that require meetingId first

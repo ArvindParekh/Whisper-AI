@@ -3,19 +3,36 @@ export const apiCheckToken = async (request: Request, env: Env, ctx: ExecutionCo
 	const token = url.searchParams.get('token');
 
 	if (!token) {
-		return new Response(JSON.stringify({ success: false, error: 'Token is required' }), { status: 400 });
+		return new Response(JSON.stringify({ success: false, error: 'Token is required' }), {
+			status: 400,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	}
 
 	const tokenData = await env.WHISPER_TOKEN_STORE.get(token, 'json');
 	if (!tokenData) {
-		return new Response(JSON.stringify({ success: false, message: 'expired' }));
+		return new Response(JSON.stringify({ success: false, message: 'expired' }), {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	}
 
 	if (tokenData === 'waiting') {
-		return new Response(JSON.stringify({ success: false, message: 'waiting' }));
+		return new Response(JSON.stringify({ success: false, message: 'waiting' }), {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	}
 
-	return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }));
+	return new Response(JSON.stringify({ success: true, message: 'connected', data: tokenData }), {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
 };
 
 export const apiCliConnected = async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
