@@ -21,7 +21,7 @@ export function ConnectionPanel({ token, status, meetingId, projectInfo }: Conne
 
   const copyCommand = () => {
     if (!token) return
-    navigator.clipboard.writeText(`npx whisper-ai --token=${token}`)
+    navigator.clipboard.writeText(`npx whisper-ai monitor --token=${token}`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -77,7 +77,7 @@ export function ConnectionPanel({ token, status, meetingId, projectInfo }: Conne
                 <div className="terminal-dot bg-green-500" />
               </div>
               <div className="p-4 flex items-center justify-between">
-                <code className="text-sm text-gray-300">npx whisper-ai --token={token}</code>
+                <code className="text-sm text-gray-300">npx whisper-ai monitor --token={token}</code>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -123,7 +123,7 @@ export function ConnectionPanel({ token, status, meetingId, projectInfo }: Conne
           </div>
 
           {meetingId && (
-            <Link href={`/meeting/${meetingId}`}>
+            <Link href={`/meeting/${meetingId}`} target="_blank">
               <Button
                 size="lg"
                 className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-900/20"
