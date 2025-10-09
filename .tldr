@@ -75,6 +75,11 @@
 							"content": [
 								{
 									"type": "text",
+									"marks": [
+										{
+											"type": "highlight"
+										}
+									],
 									"text": "Things to implement:"
 								}
 							]
@@ -213,6 +218,11 @@
 											"content": [
 												{
 													"type": "text",
+													"marks": [
+														{
+															"type": "highlight"
+														}
+													],
 													"text": "meeting joining logic"
 												}
 											]
@@ -231,6 +241,11 @@
 															"content": [
 																{
 																	"type": "text",
+																	"marks": [
+																		{
+																			"type": "highlight"
+																		}
+																	],
 																	"text": "backend - half left"
 																}
 															]
@@ -248,10 +263,20 @@
 															"content": [
 																{
 																	"type": "text",
+																	"marks": [
+																		{
+																			"type": "highlight"
+																		}
+																	],
 																	"text": "frontend"
 																},
 																{
-																	"type": "hardBreak"
+																	"type": "hardBreak",
+																	"marks": [
+																		{
+																			"type": "highlight"
+																		}
+																	]
 																}
 															]
 														},
@@ -279,9 +304,9 @@
 		{
 			"id": "pointer:pointer",
 			"typeName": "pointer",
-			"x": 612.5078125,
-			"y": 334.921875,
-			"lastActivityTimestamp": 1759039806655,
+			"x": 485.10138839115746,
+			"y": 1090.1677892445337,
+			"lastActivityTimestamp": 1760212496004,
 			"meta": {}
 		},
 		{
@@ -301,8 +326,8 @@
 			"screenBounds": {
 				"x": 0,
 				"y": 0,
-				"w": 1142,
-				"h": 655
+				"w": 1203,
+				"h": 929
 			},
 			"insets": [
 				false,
@@ -330,12 +355,12 @@
 			"typeName": "instance"
 		},
 		{
-			"editingShapeId": "shape:M3mRKUl36gLycpx2eaw59",
+			"editingShapeId": "shape:HbNdrs9dDcJlTRNxjE1kU",
 			"croppingShapeId": null,
 			"selectedShapeIds": [
-				"shape:M3mRKUl36gLycpx2eaw59"
+				"shape:HbNdrs9dDcJlTRNxjE1kU"
 			],
-			"hoveredShapeId": "shape:M3mRKUl36gLycpx2eaw59",
+			"hoveredShapeId": "shape:HbNdrs9dDcJlTRNxjE1kU",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
@@ -345,12 +370,344 @@
 			"typeName": "instance_page_state"
 		},
 		{
-			"x": 139.4921875,
-			"y": 136.078125,
-			"z": 1,
+			"x": -190.36959931787274,
+			"y": -444.38603484192254,
+			"z": 1.0653754078828743,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
+		},
+		{
+			"x": 221.34173031399718,
+			"y": 547.5026759492059,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:HbNdrs9dDcJlTRNxjE1kU",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 1113.578125,
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1,
+				"richText": {
+					"type": "doc",
+					"content": [
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"text": "How whisper-ai works:"
+								}
+							]
+						},
+						{
+							"type": "orderedList",
+							"attrs": {
+								"start": 1
+							},
+							"content": [
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "Frontend generates a unique token"
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "Frontend calls /api/register-token to register the token on the TOKEN_KV"
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "store with status: \"waiting\""
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "User copies the npx command and runs it in the terminal of their project"
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "The terminal calls /api/cli-connected while providing token, and projectName"
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "This updates the frontend-registered token in the TOKEN_KV store to "
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "status: \"connected\", and saves the projectName, sessionId and timestamp in there"
+												}
+											]
+										},
+										{
+											"type": "orderedList",
+											"attrs": {
+												"start": 1
+											},
+											"content": [
+												{
+													"type": "listItem",
+													"content": [
+														{
+															"type": "paragraph",
+															"attrs": {
+																"dir": "auto"
+															},
+															"content": [
+																{
+																	"type": "text",
+																	"text": "The sessionId is generated internally (in worker) using the projectName - "
+																}
+															]
+														},
+														{
+															"type": "paragraph",
+															"attrs": {
+																"dir": "auto"
+															},
+															"content": [
+																{
+																	"type": "text",
+																	"text": "so that each project always maps to the same sessionId"
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "The call also returns the sessionId back to the terminal."
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "This sessionId is the unique determiner for each Durable Object instance"
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "Meanwhile, the frontend keeps polling for token state using /api/check-token"
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "Once the token status (in TOKEN_KV) has been updated to \"connected\", the call"
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "returns with \"tokenData\" - which is just what token maps to in TOKEN_KV - "
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "which is the JSON object { status, projectName, sessionId}. Hence, frontend gets"
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "sessionId too."
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "listItem",
+									"content": [
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "Each sessionId has been mapped to a unique Durable Object instance that manages"
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											},
+											"content": [
+												{
+													"type": "text",
+													"text": "all relevant code storage, ai processing, etc for that particular user (or sessionId)."
+												}
+											]
+										},
+										{
+											"type": "paragraph",
+											"attrs": {
+												"dir": "auto"
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			},
+			"parentId": "page:page",
+			"index": "a2Ago",
+			"typeName": "shape"
 		}
 	]
 }
