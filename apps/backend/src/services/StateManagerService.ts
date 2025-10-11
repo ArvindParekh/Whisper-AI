@@ -7,7 +7,7 @@ interface SessionState {
 	lastActivity: number;
 }
 
-export class SessionService {
+export class StateManagerService {
 	private ctx: DurableObjectState;
 	private sessionState: SessionState | null = null;
 

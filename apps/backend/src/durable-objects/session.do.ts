@@ -1,22 +1,22 @@
 import { RealtimeAgent, TextComponent, RealtimeKitTransport, DeepgramSTT, ElevenLabsTTS } from '@cloudflare/realtime-agents';
 import { AIService } from '../services/AIService';
-import { SessionService } from '../services/SessionService';
+import { StateManagerService } from '../services/StateManagerService';
 import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from '@whisper/shared/types/watcher';
 
 class WhisperTextProcessor extends TextComponent {
 	private aiService: AIService;
-	private sessionService: SessionService;
+	private stateManagerService: StateManagerService;
 
-	constructor(env: Env, sessionService: SessionService) {
+	constructor(env: Env, stateManagerService: StateManagerService) {
 		super();
 		this.aiService = new AIService(env);
-		this.sessionService = sessionService;
+		this.stateManagerService = stateManagerService;
 	}
 
 	async onTranscript(text: string, reply: (text: string) => void) {
 		console.log(`[Agent] Received transcript: "${text}"`);
 		try {
-			const context = await this.sessionService.getProjectContext();
+			const context = await this.stateManagerService.getProjectContext();
 			const aiResponse = await this.aiService.generateResponse(text, context);
 
 			console.log(`[Agent] AI response: "${aiResponse}"`);
@@ -31,8 +31,8 @@ class WhisperTextProcessor extends TextComponent {
 
 	private async addConversationMessages(text: string, aiResponse: string) {
 		try {
-			await this.sessionService.addConversationMessage('user', text);
-			await this.sessionService.addConversationMessage('assistant', aiResponse);
+			await this.stateManagerService.addConversationMessage('user', text);
+			await this.stateManagerService.addConversationMessage('assistant', aiResponse);
 		} catch (error) {
 			console.error('[Agent] Error adding conversation messages:', error);
 		}
@@ -40,32 +40,32 @@ class WhisperTextProcessor extends TextComponent {
 }
 
 export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
-	private sessionService: SessionService;
+	private stateManagerService: StateManagerService;
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
-		this.sessionService = new SessionService(ctx);
+		this.stateManagerService = new StateManagerService(ctx);
 	}
 
 	// ===== SESSION STATE METHODS =====
 	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
-		return this.sessionService.syncFile(filePath, fileContent, type, timestamp);
+		return this.stateManagerService.syncFile(filePath, fileContent, type, timestamp);
 	}
 
 	async getProjectContext(): Promise<ProjectContext> {
-		return this.sessionService.getProjectContext();
+		return this.stateManagerService.getProjectContext();
 	}
 
 	async getConversationHistory(limit?: number): Promise<ConversationMessage[]> {
-		return this.sessionService.getConversationHistory(limit);
+		return this.stateManagerService.getConversationHistory(limit);
 	}
 
 	async getSessionStats(): Promise<SessionStats> {
-		return this.sessionService.getSessionStats();
+		return this.stateManagerService.getSessionStats();
 	}
 
 	async clearSession(): Promise<void> {
-		return this.sessionService.clearSession();
+		return this.stateManagerService.clearSession();
 	}
 
 	// ===== VOICE/MEETING METHODS =====
@@ -79,7 +79,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	): Promise<void> {
 		console.log('[Agent] Starting init');
 
-		const textProcessor = new WhisperTextProcessor(this.env, this.sessionService);
+		const textProcessor = new WhisperTextProcessor(this.env, this.stateManagerService);
 		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
 
 		await this.initPipeline(
