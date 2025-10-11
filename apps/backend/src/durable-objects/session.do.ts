@@ -6,13 +6,11 @@ import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, s
 class WhisperTextProcessor extends TextComponent {
 	private aiService: AIService;
 	private sessionService: SessionService;
-	private sessionId: string;
 
-	constructor(env: Env, sessionService: SessionService, sessionId: string) {
+	constructor(env: Env, sessionService: SessionService) {
 		super();
 		this.aiService = new AIService(env);
 		this.sessionService = sessionService;
-		this.sessionId = sessionId;
 	}
 
 	async onTranscript(text: string, reply: (text: string) => void) {
@@ -33,8 +31,8 @@ class WhisperTextProcessor extends TextComponent {
 
 	private async addConversationMessages(text: string, aiResponse: string) {
 		try {
-			await this.sessionService.addConversationMessage(this.sessionId, 'user', text);
-			await this.sessionService.addConversationMessage(this.sessionId, 'assistant', aiResponse);
+			await this.sessionService.addConversationMessage('user', text);
+			await this.sessionService.addConversationMessage('assistant', aiResponse);
 		} catch (error) {
 			console.error('[Agent] Error adding conversation messages:', error);
 		}
@@ -43,7 +41,6 @@ class WhisperTextProcessor extends TextComponent {
 
 export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	private sessionService: SessionService;
-	private sessionId: string = '';
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
@@ -51,30 +48,24 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	}
 
 	// ===== SESSION STATE METHODS =====
-	async syncFile(
-		filePath: string,
-		fileContent: string,
-		sessionId: string,
-		type: syncFileType,
-		timestamp: number,
-	): Promise<syncFileResponseBody> {
-		return this.sessionService.syncFile(filePath, fileContent, sessionId, type, timestamp);
+	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
+		return this.sessionService.syncFile(filePath, fileContent, type, timestamp);
 	}
 
-	async getProjectContext(sessionId: string): Promise<ProjectContext> {
-		return this.sessionService.getProjectContext(sessionId);
+	async getProjectContext(): Promise<ProjectContext> {
+		return this.sessionService.getProjectContext();
 	}
 
-	async getConversationHistory(sessionId: string, limit?: number): Promise<ConversationMessage[]> {
-		return this.sessionService.getConversationHistory(sessionId, limit);
+	async getConversationHistory(limit?: number): Promise<ConversationMessage[]> {
+		return this.sessionService.getConversationHistory(limit);
 	}
 
-	async getSessionStats(sessionId: string): Promise<SessionStats> {
-		return this.sessionService.getSessionStats(sessionId);
+	async getSessionStats(): Promise<SessionStats> {
+		return this.sessionService.getSessionStats();
 	}
 
-	async clearSession(sessionId: string): Promise<void> {
-		return this.sessionService.clearSession(sessionId);
+	async clearSession(): Promise<void> {
+		return this.sessionService.clearSession();
 	}
 
 	// ===== VOICE/MEETING METHODS =====
@@ -85,12 +76,10 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		workerUrlHost: string,
 		accountId: string,
 		apiToken: string,
-		sessionId: string,
 	): Promise<void> {
 		console.log('[Agent] Starting init');
-		this.sessionId = sessionId;
 
-		const textProcessor = new WhisperTextProcessor(this.env, this.sessionService, this.sessionId);
+		const textProcessor = new WhisperTextProcessor(this.env, this.sessionService);
 		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
 
 		await this.initPipeline(

@@ -3,7 +3,6 @@ import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, s
 interface SessionState {
 	files: Map<string, { content: string; lastModified: number }>;
 	conversationHistory: ConversationMessage[];
-	sessionId: string;
 	createdAt: number;
 	lastActivity: number;
 }
@@ -16,7 +15,7 @@ export class SessionService {
 		this.ctx = ctx;
 	}
 
-	private async ensureSessionState(sessionId: string): Promise<SessionState> {
+	private async ensureSessionState(): Promise<SessionState> {
 		if (!this.sessionState) {
 			const stored = await this.ctx.storage.get<SessionState>('sessionState');
 
@@ -30,7 +29,6 @@ export class SessionService {
 				this.sessionState = {
 					files: new Map(),
 					conversationHistory: [],
-					sessionId,
 					createdAt: Date.now(),
 					lastActivity: Date.now(),
 				};
@@ -54,12 +52,11 @@ export class SessionService {
 	async syncFile(
 		filePath: string,
 		fileContent: string,
-		sessionId: string,
 		type: syncFileType,
 		timestamp: number,
 	): Promise<syncFileResponseBody> {
 		try {
-			const state = await this.ensureSessionState(sessionId);
+			const state = await this.ensureSessionState();
 
 			switch (type) {
 				case 'add':
@@ -87,20 +84,19 @@ export class SessionService {
 		}
 	}
 
-	async getProjectContext(sessionId?: string): Promise<ProjectContext> {
-		const state = await this.ensureSessionState(sessionId || '');
+	async getProjectContext(): Promise<ProjectContext> {
+		const state = await this.ensureSessionState();
 		return {
 			files: Object.fromEntries(state.files),
 		};
 	}
 
 	async addConversationMessage(
-		sessionId: string,
 		type: 'user' | 'assistant',
 		content: string,
 		metadata?: Record<string, any>,
 	): Promise<void> {
-		const state = await this.ensureSessionState(sessionId);
+		const state = await this.ensureSessionState();
 
 		const message: ConversationMessage = {
 			id: crypto.randomUUID(),
@@ -114,8 +110,8 @@ export class SessionService {
 		await this.saveSessionState();
 	}
 
-	async getConversationHistory(sessionId: string, limit?: number): Promise<ConversationMessage[]> {
-		const state = await this.ensureSessionState(sessionId);
+	async getConversationHistory(limit?: number): Promise<ConversationMessage[]> {
+		const state = await this.ensureSessionState();
 		const history = state.conversationHistory;
 
 		if (limit && limit > 0) {
@@ -125,8 +121,8 @@ export class SessionService {
 		return history;
 	}
 
-	async getSessionStats(sessionId: string): Promise<SessionStats> {
-		const state = await this.ensureSessionState(sessionId);
+	async getSessionStats(): Promise<SessionStats> {
+		const state = await this.ensureSessionState();
 
 		return {
 			filesCount: state.files.size,
@@ -136,8 +132,8 @@ export class SessionService {
 		};
 	}
 
-	async clearSession(sessionId: string): Promise<void> {
-		await this.ctx.storage.deleteAll();
+	async clearSession(): Promise<void> {
+		await this.ctx.storage.delete('sessionState');
 		this.sessionState = null;
 	}
 }
