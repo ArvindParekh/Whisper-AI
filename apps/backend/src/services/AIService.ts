@@ -27,8 +27,9 @@ export class AIService {
 
 	private buildSystemPrompt(context: ProjectContext): string {
 		const fileCount = Object.keys(context.files).length;
-		const fileList = Object.keys(context.files).slice(0, 5);
+		const fileList = Object.keys(context.files);
 
+		// todo: should this be part of system prompt?
 		return `You are an AI pair programming assistant with access to the user's project files.
 
                 Project Context:
@@ -40,8 +41,7 @@ export class AIService {
 									.map((filename) => {
 										const file = context.files[filename];
 										if (!file) return `${filename}: (file not found)`;
-										const preview = file.content.substring(0, 500);
-										return `${filename}:\n${preview}${file.content.length > 500 ? '...' : ''}`;
+										return `${filename}:\n${file.content}`;
 									})
 									.join('\n\n')}
 
