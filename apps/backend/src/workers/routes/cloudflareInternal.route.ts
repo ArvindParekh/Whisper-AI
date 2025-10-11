@@ -9,7 +9,7 @@ export const initRoute = async (stub: WhisperSessionDurableObject, request: Requ
 	const authHeader = request.headers.get('Authorization');
 	if (!authHeader) return new Response(null, { status: 401 });
 
-	await stub.init(meetingId, meetingId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN);
+	await stub.init(meetingId, meetingId, authHeader.split(' ')[1]!, url.host, env.ACCOUNT_ID, env.API_TOKEN, request.headers.get('Session-ID')!);
 	return new Response(null, { status: 200 });
 };
 
