@@ -6,11 +6,13 @@ import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, s
 class WhisperTextProcessor extends TextComponent {
 	private aiService: AIService;
 	private sessionService: SessionService;
+	private sessionId: string;
 
-	constructor(env: Env, sessionService: SessionService) {
+	constructor(env: Env, sessionService: SessionService, sessionId: string) {
 		super();
 		this.aiService = new AIService(env);
 		this.sessionService = sessionService;
+		this.sessionId = sessionId;
 	}
 
 	async onTranscript(text: string, reply: (text: string) => void) {
@@ -21,9 +23,20 @@ class WhisperTextProcessor extends TextComponent {
 
 			console.log(`[Agent] AI response: "${aiResponse}"`);
 			reply(aiResponse);
+
+			await this.addConversationMessages(text, aiResponse);
 		} catch (error) {
 			console.error('[Agent] Error generating AI response:', error);
 			reply('Sorry, I encountered an error processing your request.');
+		}
+	}
+
+	private async addConversationMessages(text: string, aiResponse: string) {
+		try {
+			await this.sessionService.addConversationMessage(this.sessionId, 'user', text);
+			await this.sessionService.addConversationMessage(this.sessionId, 'assistant', aiResponse);
+		} catch (error) {
+			console.error('[Agent] Error adding conversation messages:', error);
 		}
 	}
 }
@@ -52,15 +65,6 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		return this.sessionService.getProjectContext(sessionId);
 	}
 
-	async addConversationMessage(
-		sessionId: string,
-		type: 'user' | 'assistant',
-		content: string,
-		metadata?: Record<string, any>,
-	): Promise<void> {
-		return this.sessionService.addConversationMessage(sessionId, type, content, metadata);
-	}
-
 	async getConversationHistory(sessionId: string, limit?: number): Promise<ConversationMessage[]> {
 		return this.sessionService.getConversationHistory(sessionId, limit);
 	}
@@ -86,7 +90,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		console.log('[Agent] Starting init');
 		this.sessionId = sessionId;
 
-		const textProcessor = new WhisperTextProcessor(this.env, this.sessionService);
+		const textProcessor = new WhisperTextProcessor(this.env, this.sessionService, this.sessionId);
 		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
 
 		await this.initPipeline(
