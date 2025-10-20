@@ -15,6 +15,12 @@ interface ProjectInfo {
    sessionId: string;
 }
 
+interface CheckTokenResponse {
+   success: boolean;
+   message: string;
+   data: ProjectInfo;
+  }
+
 export function useConnection() {
    const [token, setToken] = useState<string | null>(null);
    const [status, setStatus] = useState<ConnectionStatus>("generating-token");
@@ -53,16 +59,18 @@ export function useConnection() {
                   const res = await axios.get(
                      `${backendUrl}/api/check-token?token=${token}`
                   );
-                  const data = res.data;
+                  const data = res.data as CheckTokenResponse;
                   console.log(data);
 
                   if (data.message === "connected") {
                      clearInterval(pollInterval);
                      setStatus("connected");
                      setProjectInfo({
-                        projectName: data.projectName,
-                        sessionId: data.sessionId,
+                        projectName: data.data.projectName,
+                        sessionId: data.data.sessionId,
                      });
+
+                     setupMeeting(data.data.sessionId);
                   }
                } catch (err) {
                   console.error("Polling error:", err);
@@ -81,6 +89,7 @@ export function useConnection() {
    }, [token, status]);
 
    const setupMeeting = async (sessionId: string) => {
+    console.log("Setting up meeting for sessionId:", sessionId);
       try {
          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
          if (!backendUrl) return;
