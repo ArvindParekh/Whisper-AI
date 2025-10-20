@@ -9,5 +9,5 @@ export const preflightMiddleware = (request: Request): Response | undefined => {
 			}),
 		);
 	}
-    return;
+	return;
 };

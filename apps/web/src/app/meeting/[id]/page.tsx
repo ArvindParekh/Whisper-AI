@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import MyMeeting from "@/components/dashboard/meeting"
-import { MeetingHeader } from "@/components/meeting/meeting-header"
-import axios from "axios"
-import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import MyMeeting from "@/components/dashboard/meeting";
+import { MeetingHeader } from "@/components/meeting/meeting-header";
+import axios from "axios";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MeetingPage() {
-  const { id } = useParams<{ id: string }>()
-  const [authToken, setAuthToken] = useState<string | null>(null)
+  const { id } = useParams<{ id: string }>();
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   useEffect(() => {
     const addParticipant = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
         if (!backendUrl) {
-          console.log("Backend URL not configured")
-          return
+          console.log("Backend URL not configured");
+          return;
         }
 
         const res = await axios.post(`${backendUrl}/api/create-participant`, {
           meetingId: id,
           participantName: "Developer",
-        })
-        const data = res.data
-        setAuthToken(data.authToken)
+        });
+        const data = res.data;
+        setAuthToken(data.authToken);
       } catch (error) {
-        console.error("Failed to create participant:", error)
+        console.error("Failed to create participant:", error);
       }
-    }
-    addParticipant()
-  }, [id])
+    };
+    addParticipant();
+  }, [id]);
 
   return (
     <div className="h-screen flex flex-col">
@@ -50,5 +50,5 @@ export default function MeetingPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

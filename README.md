@@ -99,17 +99,20 @@ The system consists of three main components:
 ## 🚦 Getting Started
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/whisper.git
    cd whisper
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    # Create .env files in apps/web and apps/backend
    cp apps/web/.env.example apps/web/.env

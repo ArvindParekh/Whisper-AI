@@ -1,7 +1,7 @@
-import { HeroSection } from "@/components/home/hero-section"
-import { HowItWorks } from "@/components/home/how-it-works"
-import { PricingSection } from "@/components/home/pricing-section"
-import { TrustSection } from "@/components/home/trust-section"
+import { HeroSection } from "@/components/home/hero-section";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { PricingSection } from "@/components/home/pricing-section";
+import { TrustSection } from "@/components/home/trust-section";
 
 export default function HomePage() {
   return (
@@ -11,5 +11,5 @@ export default function HomePage() {
       <PricingSection />
       <TrustSection />
     </div>
-  )
+  );
 }

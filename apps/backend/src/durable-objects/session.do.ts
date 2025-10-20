@@ -17,8 +17,8 @@ class WhisperTextProcessor extends TextComponent {
 		console.log(`[Agent] Received transcript: "${text}"`);
 		try {
 			const context = await this.stateManagerService.getProjectContext();
-			console.log("Context is: ", context);
-			console.log("Text is: ", text);
+			console.log('Context is: ', context);
+			console.log('Text is: ', text);
 			const aiResponse = await this.aiService.generateResponse(text, context);
 
 			console.log(`[Agent] AI response: "${aiResponse}"`);

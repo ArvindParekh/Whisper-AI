@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { PhoneOff } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button";
+import { PhoneOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function MeetingHeader() {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLeave = () => {
-    router.push("/dashboard")
-  }
+    router.push("/dashboard");
+  };
 
   return (
     <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between bg-black">
@@ -28,6 +28,5 @@ export function MeetingHeader() {
         Leave
       </Button>
     </header>
-  )
+  );
 }
-

@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { WelcomeSection } from "@/components/dashboard/welcome-section"
-import { ConnectionPanel } from "@/components/dashboard/connection-panel"
-import { RecentSessions } from "@/components/dashboard/recent-sessions"
-import { useConnection } from "@/hooks/use-connection"
+import { WelcomeSection } from "@/components/dashboard/welcome-section";
+import { ConnectionPanel } from "@/components/dashboard/connection-panel";
+import { RecentSessions } from "@/components/dashboard/recent-sessions";
+import { useConnection } from "@/hooks/use-connection";
 
 export default function DashboardPage() {
-  const { token, status, projectInfo, meetingId, error } = useConnection()
+  const { token, status, projectInfo, meetingId, error } = useConnection();
 
   return (
     <div className="min-h-screen px-6 py-20">
@@ -35,5 +35,5 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

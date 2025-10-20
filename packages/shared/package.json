@@ -2,9 +2,11 @@
   "name": "@whisper/shared",
   "version": "1.0.0",
   "description": "",
-    "typesVersions": {
+  "typesVersions": {
     "*": {
-      "types/*": ["src/types/*"]
+      "types/*": [
+        "src/types/*"
+      ]
     }
   },
   "exports": {

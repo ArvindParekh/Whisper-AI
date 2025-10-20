@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
@@ -11,10 +11,10 @@ const plans = [
     features: [
       "5 hours/month voice sessions",
       "Basic code context",
-      "Community support"
+      "Community support",
     ],
     cta: "Start Free",
-    href: "/dashboard"
+    href: "/dashboard",
   },
   {
     name: "Pro",
@@ -24,11 +24,11 @@ const plans = [
       "Unlimited voice sessions",
       "Deep codebase analysis",
       "Priority support",
-      "Session history"
+      "Session history",
     ],
     cta: "Go Pro",
     href: "/dashboard",
-    popular: true
+    popular: true,
   },
   {
     name: "Team",
@@ -38,12 +38,12 @@ const plans = [
       "Everything in Pro",
       "Up to 5 team members",
       "Shared sessions",
-      "Team analytics"
+      "Team analytics",
     ],
     cta: "Contact Sales",
-    href: "/dashboard"
-  }
-]
+    href: "/dashboard",
+  },
+];
 
 export function PricingSection() {
   return (
@@ -65,7 +65,7 @@ export function PricingSection() {
             <div
               key={index}
               className={`card-subtle p-6 rounded-lg ${
-                plan.popular ? 'ring-1 ring-orange-500/50' : ''
+                plan.popular ? "ring-1 ring-orange-500/50" : ""
               }`}
             >
               {plan.popular && (
@@ -80,7 +80,9 @@ export function PricingSection() {
                 <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
                 <div className="flex items-baseline">
                   <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.period && <span className="text-gray-500 ml-1">{plan.period}</span>}
+                  {plan.period && (
+                    <span className="text-gray-500 ml-1">{plan.period}</span>
+                  )}
                 </div>
               </div>
 
@@ -97,8 +99,8 @@ export function PricingSection() {
                 <Button
                   className={`w-full ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-900/20'
-                      : 'bg-white/5 hover:bg-white/10'
+                      ? "bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-900/20"
+                      : "bg-white/5 hover:bg-white/10"
                   }`}
                 >
                   {plan.cta}
@@ -109,6 +111,5 @@ export function PricingSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
-

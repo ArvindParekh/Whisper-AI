@@ -9,53 +9,45 @@
 	"compatibility_date": "2025-09-24",
 	"migrations": [
 		{
-			"new_sqlite_classes": [
-				"SessionsDurableObject"
-			],
-			"tag": "v1"
+			"new_sqlite_classes": ["SessionsDurableObject"],
+			"tag": "v1",
 		},
 		{
-			"new_sqlite_classes": [
-				"WhisperAgent"
-			],
-			"tag": "v2"
+			"new_sqlite_classes": ["WhisperAgent"],
+			"tag": "v2",
 		},
 		{
 			"renamed_classes": [
 				{
 					"from": "SessionsDurableObject",
-					"to": "WhisperSessionDurableObject"
-				}
+					"to": "WhisperSessionDurableObject",
+				},
 			],
-			"deleted_classes": [
-				"WhisperAgent"
-			],
-			"tag": "v4"
-		}
+			"deleted_classes": ["WhisperAgent"],
+			"tag": "v4",
+		},
 	],
 	"durable_objects": {
 		"bindings": [
 			{
 				"class_name": "WhisperSessionDurableObject",
-				"name": "SESSIONS"
+				"name": "SESSIONS",
 			},
 		],
 	},
 	"ai": {
-		"binding": "AI"
+		"binding": "AI",
 	},
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
+	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
-		"enabled": true
+		"enabled": true,
 	},
 	"kv_namespaces": [
 		{
 			"binding": "WHISPER_TOKEN_STORE",
-			"id": "d6ff7cd8f3454349ba09c915a37d6c2e"
-		}
-	]
+			"id": "d6ff7cd8f3454349ba09c915a37d6c2e",
+		},
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

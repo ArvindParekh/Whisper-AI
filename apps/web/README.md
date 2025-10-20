@@ -88,6 +88,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 ## Key Features
 
 ### Homepage
+
 - **Clean Hero** - Large, confident typography with ONE orange accent word
 - **Real Terminal** - Actual product UI showing terminal interaction
 - **Simple 3-Step** - Text-focused explanation with orange icons for warmth
@@ -95,12 +96,14 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - **Trust Signals** - GitHub, Northeastern, stats placed naturally
 
 ### Dashboard
+
 - **Connection Flow** - Generate token → wait for CLI → ready to join
 - **Real-time Status** - Visual indicators for connection state
 - **Session History** - Recent voice sessions with topics
 - **Quick Actions** - Copy command, join session
 
 ### Meeting Page
+
 - **Minimal Design** - Focus on the voice session
 - **Clean Header** - Project info and leave button
 - **Realtime Kit Integration** - Voice/video infrastructure
@@ -108,6 +111,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 ## Design System
 
 ### Colors
+
 - **Background**: Pure black (`#000000`)
 - **Card**: Very dark (`#0a0a0a`)
 - **Primary/Accent**: Orange (`#f97316`) - warm, human, voice-focused
@@ -116,12 +120,14 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - **NO purple or blue** - orange only for accent
 
 ### Effects
+
 - **Subtle hover states**: 2px lift, slight shadow increase
 - **No glows or excessive blur**
 - **Clean borders**: Simple 1px borders
 - **Product-focused**: Terminal windows, code snippets, real UI
 
 ### Typography
+
 - **Font**: Inter (sans), JetBrains Mono (mono)
 - **Scale**: 3xl-8xl for headers (not oversized)
 - **Accent words**: Single orange words in headings ("with", "thinking partner")
@@ -129,6 +135,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 - Orange used for voice/audio UI elements (AI responses, mic states, etc.)
 
 ### Animations
+
 - Minimal: `fadeIn`, `slideUp` only
 - No floating blobs, no excessive motion
 - Quick transitions (0.2s) for interactions
@@ -144,8 +151,8 @@ pnpm lint     # Run ESLint
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| Variable                  | Description     | Default                 |
+| ------------------------- | --------------- | ----------------------- |
 | `NEXT_PUBLIC_BACKEND_URL` | Backend API URL | `http://localhost:8787` |
 
 ## Contributing

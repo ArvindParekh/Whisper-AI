@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Github } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function TrustSection() {
   return (
@@ -30,9 +30,9 @@ export function TrustSection() {
             Built at Northeastern University. Open source and privacy-focused.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <a 
-              href="https://github.com/yourusername/whisper-ai" 
-              target="_blank" 
+            <a
+              href="https://github.com/yourusername/whisper-ai"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
             >
@@ -47,15 +47,19 @@ export function TrustSection() {
           <h3 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to think with <span className="text-orange-500">AI</span>?
           </h3>
-          <p className="text-gray-400 mb-8">Start your first voice session in under a minute.</p>
+          <p className="text-gray-400 mb-8">
+            Start your first voice session in under a minute.
+          </p>
           <Link href="/dashboard">
-            <Button size="lg" className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-900/20">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-900/20"
+            >
               Get Started Free
             </Button>
           </Link>
         </div>
       </div>
     </section>
-  )
+  );
 }
-

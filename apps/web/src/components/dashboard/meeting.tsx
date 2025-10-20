@@ -1,11 +1,14 @@
 import { useEffect } from "react";
-import { RealtimeKitProvider, useRealtimeKitClient } from "@cloudflare/realtimekit-react";
+import {
+  RealtimeKitProvider,
+  useRealtimeKitClient,
+} from "@cloudflare/realtimekit-react";
 import MyMeetingUI from "./my-meeting-ui";
 
 export default function MyMeeting({ authToken }: { authToken: string }) {
-   const [meeting, initMeeting ] = useRealtimeKitClient();
+  const [meeting, initMeeting] = useRealtimeKitClient();
 
-   useEffect(() => {
+  useEffect(() => {
     initMeeting({
       authToken: authToken,
       defaults: {
@@ -15,9 +18,9 @@ export default function MyMeeting({ authToken }: { authToken: string }) {
     });
   }, []);
 
-   return (
-      <RealtimeKitProvider value={meeting}>
-        <MyMeetingUI />
-      </RealtimeKitProvider>
-   );
+  return (
+    <RealtimeKitProvider value={meeting}>
+      <MyMeetingUI />
+    </RealtimeKitProvider>
+  );
 }

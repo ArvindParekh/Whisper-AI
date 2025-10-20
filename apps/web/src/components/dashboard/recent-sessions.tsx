@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Clock, Mic, Calendar } from "lucide-react"
+import { Clock, Mic, Calendar } from "lucide-react";
 
 const mockSessions = [
   {
@@ -24,7 +24,7 @@ const mockSessions = [
     date: "2 days ago",
     topics: ["Error Handling", "Logging"],
   },
-]
+];
 
 export function RecentSessions() {
   return (
@@ -70,6 +70,5 @@ export function RecentSessions() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

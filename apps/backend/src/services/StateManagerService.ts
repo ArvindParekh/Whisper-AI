@@ -49,12 +49,7 @@ export class StateManagerService {
 		}
 	}
 
-	async syncFile(
-		filePath: string,
-		fileContent: string,
-		type: syncFileType,
-		timestamp: number,
-	): Promise<syncFileResponseBody> {
+	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
 		try {
 			const state = await this.ensureSessionState();
 
@@ -91,11 +86,7 @@ export class StateManagerService {
 		};
 	}
 
-	async addConversationMessage(
-		type: 'user' | 'assistant',
-		content: string,
-		metadata?: Record<string, any>,
-	): Promise<void> {
+	async addConversationMessage(type: 'user' | 'assistant', content: string, metadata?: Record<string, any>): Promise<void> {
 		const state = await this.ensureSessionState();
 
 		const message: ConversationMessage = {
