@@ -55,7 +55,6 @@ export function ConnectionPanel({
          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/init?meetingId=${meetingId}`,
          headers: {
             Authorization: `Bearer ${process.env.NEXT_PUBLIC_AGENT_AUTH_TOKEN}`,
-            "Session-ID": projectInfo?.sessionId,
             "Content-Type": "application/json",
          },
          data: data,
