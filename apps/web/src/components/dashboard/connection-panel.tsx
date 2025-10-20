@@ -24,9 +24,8 @@ interface ConnectionPanelProps {
       | "error";
    meetingId: string | null;
    projectInfo?: {
-      name: string;
       sessionId: string;
-      projectId: string;
+      projectName: string;
    } | null;
 }
 
@@ -166,7 +165,7 @@ export function ConnectionPanel({
             <div className='card-subtle p-6 rounded-lg border-orange-500/30'>
                <div className='flex items-center justify-between mb-4'>
                   <div>
-                     <h3 className='font-semibold'>{projectInfo.name}</h3>
+                     <h3 className='font-semibold'>{projectInfo.projectName}</h3>
                      <p className='text-sm text-gray-500'>Connected</p>
                   </div>
                   <CheckCircle2 className='w-5 h-5 text-green-500' />

@@ -20,7 +20,14 @@ export default {
 			// handle routes that require meetingId first
 			const meetingId = url.searchParams.get('meetingId');
 			if (meetingId) {
-				const id = env.SESSIONS.idFromName(meetingId);
+				// get sessionId from meetingId
+				// sessionId is the unique identifier for durable objects
+				const sessionId = await env.WHISPER_TOKEN_STORE.get(`session:${meetingId}`);
+				if (!sessionId) {
+					return corsMiddleware(Response.json({ error: 'Session not found' }, { status: 404 }));
+				}
+
+				const id = env.SESSIONS.idFromName(sessionId);
 				const stub = env.SESSIONS.get(id);
 
 				if (pathname.startsWith('/agentsInternal')) {
