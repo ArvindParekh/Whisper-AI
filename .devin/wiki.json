@@ -1,0 +1,261 @@
+{
+  "repo_notes": [
+    {
+      "content": "Whisper AI is a voice-first AI pair-programmer."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Overview",
+      "purpose": "Introduce Whisper-AI as a voice-first AI pair programming system, explaining its high-level purpose, key features, and the three main architectural components (Web Frontend, CLI Watcher, Cloudflare Backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Getting Started",
+      "purpose": "Guide users through initial setup, including npx command execution, CLI installation, and first-time connection between web frontend and local environment",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "purpose": "Provide a comprehensive overview of the system architecture, including the monorepo structure, three-tier design, and how components interact",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Monorepo Structure",
+      "purpose": "Detail the monorepo organization using Turborepo and pnpm, explaining workspaces, shared packages, and dependency management",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Connection Handshake System",
+      "purpose": "Explain the token-based two-way handshake mechanism that connects the web frontend with the CLI watcher, including token lifecycle and session establishment",
+      "parent": "Architecture",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Web Frontend (apps/web)",
+      "purpose": "Overview of the Next.js web application, its role as 'The Voice', and key responsibilities including connection management and meeting interface",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Connection Flow and Dashboard",
+      "purpose": "Deep dive into the ConnectionPanel component, useConnection hook, and the dashboard's role in managing token generation, CLI connection, and meeting creation",
+      "parent": "Web Frontend (apps/web)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Meeting Interface",
+      "purpose": "Explain the meeting page component, participant authentication, and integration with Cloudflare RealtimeKit for voice sessions",
+      "parent": "Web Frontend (apps/web)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Frontend Configuration",
+      "purpose": "Document the TypeScript configuration, dependencies (Radix UI, RealtimeKit React), and build setup for the web application",
+      "parent": "Web Frontend (apps/web)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "CLI Watcher (apps/watcher)",
+      "purpose": "Overview of the CLI application built with Oclif, its role as 'The Eyes', and how it monitors and syncs local codebase changes",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Monitor Command and File Watching",
+      "purpose": "Explain the monitor command implementation, FileWatcher component, and how chokidar tracks file system changes with ignore patterns and stability thresholds",
+      "parent": "CLI Watcher (apps/watcher)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "File Synchronization Pipeline",
+      "purpose": "Detail the FileSyncer component, batch processing, retry logic, and how file changes are transmitted to the backend with error handling",
+      "parent": "CLI Watcher (apps/watcher)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "CLI Development Setup",
+      "purpose": "Explain the dual entry points (dev.js vs run.js), TypeScript configuration with ts-node, and Oclif CLI framework integration",
+      "parent": "CLI Watcher (apps/watcher)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Backend (apps/backend)",
+      "purpose": "Overview of the Cloudflare Workers backend as 'The Brain', including its serverless architecture, Durable Objects, and key responsibilities",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Worker Configuration and Environment",
+      "purpose": "Document the Cloudflare Worker configuration, environment variables (API keys for Deepgram, ElevenLabs, etc.), and Durable Object bindings",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Token Management and API Routes",
+      "purpose": "Explain the token registration, checking, and CLI connection API endpoints, including CORS middleware and KV store usage",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Session Durable Objects",
+      "purpose": "Deep dive into WhisperSessionDurableObject, its lifecycle, state management, and role as the central session orchestrator",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Real-Time Voice Pipeline",
+      "purpose": "Explain the RealtimeAgent base class, WhisperTextProcessor, and the complete audio pipeline from WebRTC through STT, AI, and TTS",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "AI Services and Context Management",
+      "purpose": "Document the AIService for generating responses with Llama 3, StateManagerService for persistence, and how project context is built and maintained",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Meeting and Session Routes",
+      "purpose": "Detail the API routes for creating meetings, participants, and managing session initialization/deinitialization with Cloudflare Realtime API",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "File Sync Backend Processing",
+      "purpose": "Explain how the backend receives and processes file synchronization requests, updating Durable Object state and managing file metadata",
+      "parent": "Backend (apps/backend)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Shared Packages",
+      "purpose": "Overview of internal shared packages that promote code reuse across applications, including types, UI components, and configuration",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Shared Types (packages/shared)",
+      "purpose": "Document the common TypeScript types and interfaces used across applications, including syncFileRequestBody, ConversationMessage, and ProjectContext",
+      "parent": "Shared Packages",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Development Guide",
+      "purpose": "Practical guide for developers working on Whisper-AI, including setup, configuration, and development workflows",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Code Quality and Formatting",
+      "purpose": "Explain the Prettier configuration, ESLint setup, and TypeScript strict mode settings used across the monorepo",
+      "parent": "Development Guide",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Build and Deployment",
+      "purpose": "Document the build process using Turborepo, Wrangler deployment for Cloudflare Workers, and Next.js build configuration",
+      "parent": "Development Guide",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    }
+  ]
+}
