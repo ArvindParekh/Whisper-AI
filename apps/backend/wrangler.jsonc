@@ -9,11 +9,15 @@
 	"compatibility_date": "2025-09-24",
 	"migrations": [
 		{
-			"new_sqlite_classes": ["SessionsDurableObject"],
+			"new_sqlite_classes": [
+				"SessionsDurableObject"
+			],
 			"tag": "v1",
 		},
 		{
-			"new_sqlite_classes": ["WhisperAgent"],
+			"new_sqlite_classes": [
+				"WhisperAgent"
+			],
 			"tag": "v2",
 		},
 		{
@@ -23,7 +27,9 @@
 					"to": "WhisperSessionDurableObject",
 				},
 			],
-			"deleted_classes": ["WhisperAgent"],
+			"deleted_classes": [
+				"WhisperAgent"
+			],
 			"tag": "v4",
 		},
 	],
@@ -38,7 +44,9 @@
 	"ai": {
 		"binding": "AI",
 	},
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"observability": {
 		"enabled": true,
 	},
@@ -46,6 +54,7 @@
 		{
 			"binding": "WHISPER_TOKEN_STORE",
 			"id": "d6ff7cd8f3454349ba09c915a37d6c2e",
+			"preview_id": "b962ec060d2344d893b3c407ed7e8f4a"
 		},
 	],
 	/**

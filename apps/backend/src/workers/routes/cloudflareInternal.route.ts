@@ -54,12 +54,14 @@ export const initRoute = async (
 		console.log('[InitRoute] Creating participant for meeting:', meetingId);
 		let participantResponse;
 		try {
+			// Use unique participant ID each time to avoid stale audio state from reused participants
+			const uniqueAgentId = `agent-${meetingId}-${Date.now()}`;
 			participantResponse = await axios.post(
 				`https://api.realtime.cloudflare.com/v2/meetings/${meetingId}/participants`,
 				{
 					name: 'Whisper AI Agent',
 					preset_name: 'Whisper',
-					custom_participant_id: 'agent-' + meetingId,
+					custom_participant_id: uniqueAgentId,
 				},
 				{ headers: { Authorization: `${env.REALTIME_KIT_AUTH_HEADER}` } },
 			);

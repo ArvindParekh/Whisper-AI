@@ -37,7 +37,7 @@ export default function MeetingPage() {
       <MeetingHeader />
       <div className="flex-1">
         {authToken ? (
-          <MyMeeting authToken={authToken} />
+          <MyMeeting authToken={authToken} meetingId={id} />
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">

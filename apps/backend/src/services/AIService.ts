@@ -9,30 +9,40 @@ export class AIService {
 
 	async generateResponse(userMessage: string, projectContext: ProjectContext): Promise<string> {
 		try {
+			if (!this.env.AI) {
+				console.error('[AIService] CRITICAL: env.AI binding is missing!');
+				return this.buildFallbackResponse(userMessage, projectContext);
+			}
+
 			const systemPrompt = this.buildSystemPrompt(projectContext);
+			console.log(`[AIService] System prompt length: ${systemPrompt.length} characters`);
 
 			console.log('[AIService] Calling AI with user message:', userMessage);
-			console.error('[AIService] Calling AI with user message:', userMessage);
-			
+
 			// Add timeout to prevent hanging
-			const AI_TIMEOUT = 10000; // 10 seconds
-			const aiPromise = this.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+			const AI_TIMEOUT = 5000; // 5 seconds
+			const startTime = Date.now();
+
+			console.log('[AIService] Starting AI.run...');
+			const aiPromise = this.env.AI.run('@cf/meta/llama-3.1-8b-instruct-awq', {
 				messages: [
 					{ role: 'system', content: systemPrompt },
 					{ role: 'user', content: userMessage },
 				],
 			});
 
-			const timeoutPromise = new Promise((_, reject) => 
-				setTimeout(() => reject(new Error('AI response timeout')), AI_TIMEOUT)
+			const timeoutPromise = new Promise((_, reject) =>
+				setTimeout(() => {
+					console.error('[AIService] Timeout triggered!');
+					reject(new Error('AI response timeout'));
+				}, AI_TIMEOUT),
 			);
 
 			const response = (await Promise.race([aiPromise, timeoutPromise])) as { response: string };
+			const duration = Date.now() - startTime;
 
-			console.log('[AIService] Full AI response object:', JSON.stringify(response, null, 2));
-			console.error('[AIService] Full AI response object:', JSON.stringify(response, null, 2));
-			console.log('[AIService] response.response value:', response.response);
-			console.error('[AIService] response.response value:', response.response);
+			console.log(`[AIService] AI response received in ${duration}ms`);
+			// console.log('[AIService] Full AI response object:', JSON.stringify(response, null, 2));
 
 			if (!response.response || response.response.trim().length === 0) {
 				console.error('[AIService] AI returned empty response, using fallback');
