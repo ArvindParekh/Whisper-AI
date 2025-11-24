@@ -1,3 +1,6 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - apps/*
+  - packages/*
+
+patchedDependencies:
+  '@cloudflare/realtime-agents@0.0.6': patches/@cloudflare__realtime-agents@0.0.6.patch

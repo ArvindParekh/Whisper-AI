@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@cloudflare/realtime-agents@0.0.6':
+    hash: 8e40d965a3ea43d6ae66d6c934a0aa7fc18d36a21ac020543d7cc332d6483de5
+    path: patches/@cloudflare__realtime-agents@0.0.6.patch
+
 importers:
 
   .:
@@ -22,7 +27,7 @@ importers:
     dependencies:
       '@cloudflare/realtime-agents':
         specifier: ^0.0.6
-        version: 0.0.6
+        version: 0.0.6(patch_hash=8e40d965a3ea43d6ae66d6c934a0aa7fc18d36a21ac020543d7cc332d6483de5)
       '@whisper/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -5250,7 +5255,7 @@ snapshots:
     dependencies:
       mime: 3.0.0
 
-  '@cloudflare/realtime-agents@0.0.6':
+  '@cloudflare/realtime-agents@0.0.6(patch_hash=8e40d965a3ea43d6ae66d6c934a0aa7fc18d36a21ac020543d7cc332d6483de5)':
     dependencies:
       '@cloudflare/realtimekit': 1.1.7-agent.1
 

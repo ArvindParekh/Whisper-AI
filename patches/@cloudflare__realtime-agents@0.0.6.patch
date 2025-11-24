@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 60fb1b7bb24e26f53a67a36d96d6526e8ac01c9a..ac08b041fdac5184f82b2fd6c7391f5960b48ad4 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -34,7 +34,7 @@ var RealtimeKitTransport = class {
+         streamline_token: streamlineToken
+       },
+       defaults: {
+-        audio: false,
++        audio: true,
+         video: false
+       }
+     }));
