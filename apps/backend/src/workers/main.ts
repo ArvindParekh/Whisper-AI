@@ -12,6 +12,7 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = url.pathname;
+		console.log(`[Worker] Incoming request: ${request.method} ${pathname}`);
 
 		const preflightResponse = preflightMiddleware(request);
 		if (preflightResponse) return preflightResponse;
