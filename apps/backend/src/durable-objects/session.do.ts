@@ -13,17 +13,9 @@ class WhisperTextProcessor extends TextComponent {
 		this.stateManagerService = stateManagerService;
 	}
 
-	async speak(text: string, contextId?: string) {
-		console.log(`[Agent] Speaking: "${text}"`);
-		await super.speak(text, contextId);
-	}
-
 	async onTranscript(text: string, reply: (text: string) => void) {
-		console.log(`[Agent] onTranscript: "${text}"`);
-
-		if (!text || text.trim().length === 0) {
-			return;
-		}
+		if (!text?.trim()) return;
+		console.log(`[Agent] User: "${text}"`);
 
 		// Echo command for testing
 		if (text.toLowerCase().startsWith('echo ')) {
@@ -36,14 +28,13 @@ class WhisperTextProcessor extends TextComponent {
 		try {
 			const context = await this.stateManagerService.getProjectContext();
 			const aiResponse = await this.aiService.generateResponse(text, context);
-			console.log(`[Agent] AI response: "${aiResponse}"`);
+			console.log(`[Agent] Response: "${aiResponse}"`);
 			reply(aiResponse);
 
-			// Save conversation
 			await this.stateManagerService.addConversationMessage('user', text);
 			await this.stateManagerService.addConversationMessage('assistant', aiResponse);
 		} catch (error) {
-			console.error('[Agent] Error:', error);
+			console.error('[Agent] Error generating response:', error);
 			reply('Sorry, I encountered an error.');
 		}
 	}
@@ -57,7 +48,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		this.stateManagerService = new StateManagerService(ctx);
 	}
 
-	// ===== SESSION STATE METHODS =====
+	// Session state methods
 	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
 		return this.stateManagerService.syncFile(filePath, fileContent, type, timestamp);
 	}
@@ -78,10 +69,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		return this.stateManagerService.clearSession();
 	}
 
-	// ===== VOICE/MEETING METHODS =====
-	// Following the official Cloudflare example exactly:
-	// https://developers.cloudflare.com/realtime/agents/getting-started/
-
+	// Voice/meeting methods
 	async init(
 		agentId: string,
 		meetingId: string,
@@ -90,18 +78,12 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		accountId: string,
 		apiToken: string,
 	): Promise<void> {
-		console.log('[Agent] init() called');
+		if (!this.env.DEEPGRAM_API_KEY) throw new Error('DEEPGRAM_API_KEY not set');
+		if (!this.env.ELEVENLABS_API_KEY) throw new Error('ELEVENLABS_API_KEY not set');
 
-		// Validate required environment variables
-		if (!this.env.DEEPGRAM_API_KEY) throw new Error('DEEPGRAM_API_KEY is not set');
-		if (!this.env.ELEVENLABS_API_KEY) throw new Error('ELEVENLABS_API_KEY is not set');
-
-		// 1. Create text processor and transport
 		const textProcessor = new WhisperTextProcessor(this.env, this.stateManagerService);
 		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
 
-		// 2. Initialize the pipeline FIRST
-		console.log('[Agent] Initializing pipeline...');
 		await this.initPipeline(
 			[
 				rtkTransport,
@@ -121,33 +103,29 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 
 		const { meeting } = rtkTransport;
 
-		// 3. Register event handlers (optional per docs)
 		meeting.participants.joined.on('participantJoined', async (participant) => {
-			console.log(`[Agent] Participant joined: ${participant.name}`);
+			console.log(`[Agent] ${participant.name} joined`);
 			try {
 				await textProcessor.speak(`Hello ${participant.name || 'there'}, I am ready.`);
 			} catch (err) {
-				console.error('[Agent] Error speaking greeting:', err);
+				console.error('[Agent] Greeting error:', err);
 			}
 		});
 
 		meeting.participants.joined.on('participantLeft', (participant) => {
-			console.log(`[Agent] Participant left: ${participant.name}`);
+			console.log(`[Agent] ${participant.name} left`);
 		});
 
-		// 4. Join the meeting LAST (per docs: "Make sure to actually join the meeting after registering all handlers")
-		console.log('[Agent] Joining meeting...');
 		await meeting.join();
-		console.log('[Agent] Joined meeting successfully');
+		console.log('[Agent] Joined meeting');
 	}
 
 	async deinit(): Promise<void> {
-		console.log('[Agent] deinit() called');
 		try {
 			await this.deinitPipeline();
-			console.log('[Agent] Pipeline deinitialized');
+			console.log('[Agent] Left meeting');
 		} catch (err) {
-			console.error('[Agent] Error during deinit:', err);
+			console.error('[Agent] Deinit error:', err);
 		}
 	}
 }

@@ -12,17 +12,14 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = url.pathname;
-		console.log(`[Worker] Incoming request: ${request.method} ${pathname}`);
 
 		const preflightResponse = preflightMiddleware(request);
 		if (preflightResponse) return preflightResponse;
 
 		try {
-			// handle routes that require meetingId first
 			const meetingId = url.searchParams.get('meetingId');
+
 			if (meetingId) {
-				// get sessionId from meetingId
-				// sessionId is the unique identifier for durable objects
 				const sessionId = await env.WHISPER_TOKEN_STORE.get(`session:${meetingId}`);
 				if (!sessionId) {
 					return corsMiddleware(Response.json({ error: 'Session not found' }, { status: 404 }));
@@ -31,12 +28,11 @@ export default {
 				const id = env.SESSIONS.idFromName(sessionId);
 				const stub = env.SESSIONS.get(id);
 
+				// cf needs this
 				if (pathname.startsWith('/agentsInternal')) {
-					// cf needs this
 					return await agentsInternalRoute(stub, request);
 				}
 
-				// cf internal routes
 				switch (pathname) {
 					case '/init': {
 						const response = await initRoute(stub, request, meetingId, env);

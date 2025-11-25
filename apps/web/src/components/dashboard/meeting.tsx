@@ -14,112 +14,57 @@ export default function MyMeeting({ authToken, meetingId }: MyMeetingProps) {
   const [meeting, initMeeting] = useRealtimeKitClient();
   const hasCleanedUp = useRef(false);
 
-  // Cleanup function to call when leaving
   const cleanup = useCallback(async () => {
     if (hasCleanedUp.current) return;
     hasCleanedUp.current = true;
 
-    console.log("[User] Cleaning up agent...");
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl || !meetingId) return;
 
-    // Call deinit to clean up the backend agent
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (backendUrl && meetingId) {
-        await fetch(`${backendUrl}/deinit?meetingId=${meetingId}`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_AGENT_AUTH_TOKEN}`,
-          },
-        });
-        console.log("[User] Agent deinit called successfully");
-      }
+      await fetch(`${backendUrl}/deinit?meetingId=${meetingId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_AGENT_AUTH_TOKEN}`,
+        },
+      });
     } catch (error) {
-      console.error("[User] Error calling deinit:", error);
+      console.error("Failed to cleanup agent:", error);
     }
   }, [meetingId]);
 
+  // Initialize meeting client
   useEffect(() => {
     initMeeting({
-      authToken: authToken,
-      defaults: {
-        audio: true,
-        video: true,
-      },
+      authToken,
+      defaults: { audio: true, video: true },
     });
-  }, []);
+  }, [authToken, initMeeting]);
 
-  // Listen for meeting end/leave events from RtkMeeting UI
+  // Cleanup on room leave
   useEffect(() => {
     if (!meeting) return;
 
-    // Called when user clicks "Leave" or "End meeting for all"
-    const onRoomLeft = () => {
-      console.log("[User] Room left event fired");
-      cleanup();
-    };
-
-    const onMeetingEnded = () => {
-      console.log("[User] Meeting ended event fired");
-      cleanup();
-    };
-
-    // Listen for room/meeting events
+    const onRoomLeft = () => cleanup();
     meeting.self.on("roomLeft", onRoomLeft);
-    meeting.meta.on("meetingEnded", onMeetingEnded);
 
     return () => {
       meeting.self.off("roomLeft", onRoomLeft);
-      meeting.meta.off("meetingEnded", onMeetingEnded);
     };
   }, [meeting, cleanup]);
 
-  // Also cleanup on beforeunload (tab close, refresh)
+  // Cleanup on tab close
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // Use sendBeacon for reliability on page unload
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       if (backendUrl && meetingId && !hasCleanedUp.current) {
-        navigator.sendBeacon(
-          `${backendUrl}/deinit?meetingId=${meetingId}`,
-          JSON.stringify({}),
-        );
+        navigator.sendBeacon(`${backendUrl}/deinit?meetingId=${meetingId}`);
       }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [meetingId]);
-
-  useEffect(() => {
-    if (!meeting) return;
-
-    const onParticipantJoined = (participant: any) => {
-      console.log(
-        "[User] Participant joined:",
-        participant.name,
-        participant.id,
-      );
-
-      if (participant.tracks && participant.tracks.started) {
-        participant.tracks.started.on("trackStarted", (track: any) => {
-          console.log(
-            `[User] Track started for ${participant.name}:`,
-            track.kind,
-          );
-        });
-      } else {
-        console.warn("[User] Participant has no tracks object:", participant);
-      }
-    };
-
-    meeting.participants.joined.on("participantJoined", onParticipantJoined);
-
-    return () => {
-      meeting.participants.joined.off("participantJoined", onParticipantJoined);
-    };
-  }, [meeting]);
 
   return (
     <RealtimeKitProvider value={meeting}>

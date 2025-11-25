@@ -3,22 +3,25 @@ import axios from 'axios';
 export const apiCreateMeeting = async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
 	const { sessionId } = (await request.json()) as { sessionId: string };
 
-	// Always create a fresh meeting - reusing meetings causes stale participant state
-	const response = await axios.post(
-		`https://api.realtime.cloudflare.com/v2/meetings`,
-		{ title: `Session ${sessionId} - ${Date.now()}` },
-		{
-			headers: {
-				Authorization: `${env.REALTIME_KIT_AUTH_HEADER}`,
-				'Content-Type': 'application/json',
-			},
-		},
-	);
+	// Reuse existing meeting for this session if available
+	let meetingId = await env.WHISPER_TOKEN_STORE.get(`meeting:${sessionId}`);
 
-	const meetingId = response.data.data.id;
-	// Store mapping for routing (overwrites any previous meeting for this session)
-	await env.WHISPER_TOKEN_STORE.put(`meeting:${sessionId}`, meetingId);
-	await env.WHISPER_TOKEN_STORE.put(`session:${meetingId}`, sessionId);
+	if (!meetingId) {
+		const response = await axios.post(
+			`https://api.realtime.cloudflare.com/v2/meetings`,
+			{ title: `Session ${sessionId}` },
+			{
+				headers: {
+					Authorization: `${env.REALTIME_KIT_AUTH_HEADER}`,
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		meetingId = response.data.data.id;
+		await env.WHISPER_TOKEN_STORE.put(`meeting:${sessionId}`, meetingId!);
+		await env.WHISPER_TOKEN_STORE.put(`session:${meetingId}`, sessionId);
+	}
 
 	return Response.json({ meetingId });
 };
@@ -29,7 +32,7 @@ export const apiCreateParticipant = async (request: Request, env: Env, ctx: Exec
 		participantName: string;
 	};
 
-	// Use unique participant ID each time to avoid stale state from reused participants
+	// Fresh participant each time to avoid stale state
 	const uniqueParticipantId = `user-${meetingId}-${Date.now()}`;
 	const response = await axios.post(
 		`https://api.realtime.cloudflare.com/v2/meetings/${meetingId}/participants`,
