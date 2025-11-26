@@ -49,8 +49,14 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	}
 
 	// Session state methods
-	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
-		return this.stateManagerService.syncFile(filePath, fileContent, type, timestamp);
+	async syncFile(
+		sessionId: string,
+		filePath: string,
+		fileContent: string,
+		type: syncFileType,
+		timestamp: number,
+	): Promise<syncFileResponseBody> {
+		return this.stateManagerService.syncFile(sessionId, filePath, fileContent, type, timestamp);
 	}
 
 	async getProjectContext(): Promise<ProjectContext> {
@@ -67,6 +73,23 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 
 	async clearSession(): Promise<void> {
 		return this.stateManagerService.clearSession();
+	}
+
+	async alarm(): Promise<void> {
+		const batch = await this.stateManagerService.alarm();
+		if (!batch) return;
+
+		// send to indexer worker - fire and forget
+		try {
+			await fetch(`${this.env.INDEXER_WORKER_URL}/index`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(batch),
+			});
+			console.log(`[DO] Sent ${batch.files.length} files to indexer`);
+		} catch (err) {
+			console.error('[DO] Failed to send to indexer:', err);
+		}
 	}
 
 	// Voice/meeting methods

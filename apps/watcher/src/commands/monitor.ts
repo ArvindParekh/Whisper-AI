@@ -7,6 +7,7 @@ import { FileSyncer } from "../core/FileSyncer.js";
 import { FileWatcher } from "../core/FileWatcher.js";
 import "dotenv/config";
 
+// example command: npx whisper-ai monitor --token=6ecf5b63-05bb-4db7-bdaa-ddcbbf0d7fac
 export default class Monitor extends Command {
   static description = "Watch files and sync to Whisper AI session";
 

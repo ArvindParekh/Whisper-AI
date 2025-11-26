@@ -16,7 +16,7 @@ export const apiSyncFile = async (request: Request, env: Env, ctx: ExecutionCont
 	const id = env.SESSIONS.idFromName(sessionId);
 	const stub = env.SESSIONS.get(id);
 
-	const result = await stub.syncFile(filePath, fileContent, type as syncFileType, timestamp);
+	const result = await stub.syncFile(sessionId, filePath, fileContent, type as syncFileType, timestamp);
 
 	return new Response(JSON.stringify(result), { status: 200 });
 };

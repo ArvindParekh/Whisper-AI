@@ -3,8 +3,15 @@ import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, s
 interface SessionState {
 	files: Map<string, { content: string; lastModified: number }>;
 	conversationHistory: ConversationMessage[];
+	pending: string[];
+	sessionId: string;
 	createdAt: number;
 	lastActivity: number;
+}
+
+export interface PendingIndexBatch {
+	sessionId: string;
+	files: { path: string; content: string }[];
 }
 
 export class StateManagerService {
@@ -15,7 +22,7 @@ export class StateManagerService {
 		this.ctx = ctx;
 	}
 
-	private async ensureSessionState(): Promise<SessionState> {
+	private async ensureSessionState(sessionId?: string): Promise<SessionState> {
 		if (!this.sessionState) {
 			const stored = await this.ctx.storage.get<SessionState>('sessionState');
 
@@ -25,13 +32,17 @@ export class StateManagerService {
 					files: new Map(Object.entries(stored.files || {})),
 					lastActivity: Date.now(),
 				};
-			} else {
+			} else if (sessionId) {
 				this.sessionState = {
 					files: new Map(),
 					conversationHistory: [],
+					pending: [],
+					sessionId,
 					createdAt: Date.now(),
 					lastActivity: Date.now(),
 				};
+			} else {
+				throw new Error('No session state found and no sessionId provided');
 			}
 		}
 
@@ -49,9 +60,15 @@ export class StateManagerService {
 		}
 	}
 
-	async syncFile(filePath: string, fileContent: string, type: syncFileType, timestamp: number): Promise<syncFileResponseBody> {
+	async syncFile(
+		sessionId: string,
+		filePath: string,
+		fileContent: string,
+		type: syncFileType,
+		timestamp: number,
+	): Promise<syncFileResponseBody> {
 		try {
-			const state = await this.ensureSessionState();
+			const state = await this.ensureSessionState(sessionId);
 
 			switch (type) {
 				case 'add':
@@ -65,7 +82,15 @@ export class StateManagerService {
 					throw new Error(`Unknown sync type: ${type}`);
 			}
 
+			// enqueue it for indexing
+			const pending = this.sessionState?.pending || [];
+			if (!pending.includes(filePath)) {
+				pending.push(filePath);
+			}
+
 			await this.saveSessionState();
+
+			await this.ctx.storage.setAlarm(Date.now() + 2000); // fire alarm after 2s - debounce
 
 			return {
 				success: true,
@@ -77,6 +102,38 @@ export class StateManagerService {
 				message: `Failed to sync file: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			};
 		}
+	}
+
+	async alarm(): Promise<PendingIndexBatch | null> {
+		const stored = await this.ctx.storage.get<SessionState>('sessionState');
+		if (!stored) return null;
+
+		this.sessionState = {
+			...stored,
+			files: new Map(Object.entries(stored.files || {})),
+		};
+
+		const pending = this.sessionState.pending || [];
+		if (pending.length === 0) return null;
+
+		const files: { path: string; content: string }[] = [];
+		for (const path of pending) {
+			const fileData = this.sessionState.files.get(path);
+			if (fileData) {
+				files.push({ path, content: fileData.content });
+			}
+		}
+
+		// clear pending
+		this.sessionState.pending = [];
+		await this.saveSessionState();
+
+		if (files.length === 0) return null;
+
+		return {
+			sessionId: this.sessionState.sessionId,
+			files,
+		};
 	}
 
 	async getProjectContext(): Promise<ProjectContext> {
