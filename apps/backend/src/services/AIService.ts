@@ -31,9 +31,7 @@ export class AIService {
 				],
 			});
 
-			const timeoutPromise = new Promise((_, reject) =>
-				setTimeout(() => reject(new Error('AI timeout')), AI_TIMEOUT),
-			);
+			const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), AI_TIMEOUT));
 
 			const response = (await Promise.race([aiPromise, timeoutPromise])) as { response: string };
 			console.log(`[AIService] AI response received in ${Date.now() - startTime}ms`);
@@ -56,8 +54,11 @@ export class AIService {
 		parts.push('You are Whisper, an AI pair programming assistant. Answer concisely based on the context provided.');
 
 		// project structure from repo map
-		if (ctx.repoMap) {
-			const files = ctx.repoMap.files.slice(0, 20).map((f) => f.path).join(', ');
+		if (ctx.repoMap?.files) {
+			const files = ctx.repoMap.files
+				.slice(0, 20)
+				.map((f) => f.path)
+				.join(', ');
 			parts.push(`\nProject: ${ctx.repoMap.count} files, ${ctx.repoMap.totalSymbols} symbols`);
 			parts.push(`Files: ${files}`);
 		}
@@ -84,7 +85,11 @@ export class AIService {
 
 	private buildFallbackResponse(userMessage: string, ctx: RetrievalContext): string {
 		const fileCount = ctx.repoMap?.count || 0;
-		const files = ctx.repoMap?.files.slice(0, 3).map((f) => f.path).join(', ') || 'none';
+		const files =
+			ctx.repoMap?.files
+				?.slice(0, 3)
+				.map((f) => f.path)
+				.join(', ') || 'none';
 
 		return `I can see ${fileCount} files (${files}). Regarding "${userMessage}" - I'm having trouble with AI processing, but I can help analyze your code!`;
 	}
