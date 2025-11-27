@@ -32,18 +32,23 @@ export class StateManagerService {
 					files: new Map(Object.entries(stored.files || {})),
 					lastActivity: Date.now(),
 				};
-			} else if (sessionId) {
+			} else {
+				// create empty session - will be populated when syncFile is called
+				// this handles the case where meeting starts before files sync
 				this.sessionState = {
 					files: new Map(),
 					conversationHistory: [],
 					pending: [],
-					sessionId,
+					sessionId: sessionId || 'pending',
 					createdAt: Date.now(),
 					lastActivity: Date.now(),
 				};
-			} else {
-				throw new Error('No session state found and no sessionId provided');
 			}
+		}
+
+		// update sessionId if provided and was pending
+		if (sessionId && this.sessionState.sessionId === 'pending') {
+			this.sessionState.sessionId = sessionId;
 		}
 
 		this.sessionState.lastActivity = Date.now();
