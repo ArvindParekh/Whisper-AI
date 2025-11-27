@@ -56,6 +56,23 @@
 			"id": "d6ff7cd8f3454349ba09c915a37d6c2e",
 			"preview_id": "b962ec060d2344d893b3c407ed7e8f4a"
 		},
+		{
+			"binding": "CODE_SUMMARIES",
+			"id": "0f2a1bfdd1a3405796a2e71480195b94"
+		},
+	],
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "whisper-code-index"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "SYMBOLS_DB",
+			"database_name": "whisper-symbols",
+			"database_id": "f6eff13f-64d8-45f1-b807-900d44e75c79"
+		}
 	],
 	/**
 	 * Smart Placement

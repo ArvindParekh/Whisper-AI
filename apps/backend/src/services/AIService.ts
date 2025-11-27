@@ -1,4 +1,4 @@
-import type { ProjectContext } from '@whisper/shared/types/watcher';
+import type { RetrievalContext } from './RetrievalService';
 
 export class AIService {
 	private env: Env;
@@ -7,20 +7,20 @@ export class AIService {
 		this.env = env;
 	}
 
-	async generateResponse(userMessage: string, projectContext: ProjectContext): Promise<string> {
+	async generateResponse(userMessage: string, context: RetrievalContext): Promise<string> {
 		try {
 			if (!this.env.AI) {
 				console.error('[AIService] CRITICAL: env.AI binding is missing!');
-				return this.buildFallbackResponse(userMessage, projectContext);
+				return this.buildFallbackResponse(userMessage, context);
 			}
 
-			const systemPrompt = this.buildSystemPrompt(projectContext);
+			const systemPrompt = this.buildSystemPrompt(context);
 			console.log(`[AIService] System prompt length: ${systemPrompt.length} characters`);
 
 			console.log('[AIService] Calling AI with user message:', userMessage);
 
 			// Add timeout to prevent hanging
-			const AI_TIMEOUT = 5000; // 5 seconds
+			const AI_TIMEOUT = 8000; // 8 seconds
 			const startTime = Date.now();
 
 			console.log('[AIService] Starting AI.run...');
@@ -32,50 +32,60 @@ export class AIService {
 			});
 
 			const timeoutPromise = new Promise((_, reject) =>
-				setTimeout(() => {
-					console.error('[AIService] Timeout triggered!');
-					reject(new Error('AI response timeout'));
-				}, AI_TIMEOUT),
+				setTimeout(() => reject(new Error('AI timeout')), AI_TIMEOUT),
 			);
 
 			const response = (await Promise.race([aiPromise, timeoutPromise])) as { response: string };
-			const duration = Date.now() - startTime;
+			console.log(`[AIService] AI response received in ${Date.now() - startTime}ms`);
 
-			console.log(`[AIService] AI response received in ${duration}ms`);
-			// console.log('[AIService] Full AI response object:', JSON.stringify(response, null, 2));
-
-			if (!response.response || response.response.trim().length === 0) {
-				console.error('[AIService] AI returned empty response, using fallback');
-				return this.buildFallbackResponse(userMessage, projectContext);
+			if (!response.response?.trim()) {
+				console.error('[AIService] Empty response from AI');
+				return this.buildFallbackResponse(userMessage, context);
 			}
 
 			return response.response;
 		} catch (error) {
-			console.error('[AIService] Error generating AI response:', error);
-			console.error('[AIService] Error details:', error instanceof Error ? error.message : String(error));
-			return this.buildFallbackResponse(userMessage, projectContext);
+			console.error('[AIService] Error:', error instanceof Error ? error.message : error);
+			return this.buildFallbackResponse(userMessage, context);
 		}
 	}
 
-	private buildSystemPrompt(context: ProjectContext): string {
-		const fileCount = Object.keys(context.files).length;
-		const fileList = Object.keys(context.files);
+	private buildSystemPrompt(ctx: RetrievalContext): string {
+		const parts: string[] = [];
 
-		// Only include file list, not full content to avoid token limits
-		// The previous approach was sending 4530 tokens causing AI to return 0 completion tokens
-		return `You are Whisper, an AI pair programming assistant with access to the user's project files.
+		parts.push('You are Whisper, an AI pair programming assistant. Answer concisely based on the context provided.');
 
-Project Context:
-- Total files: ${fileCount}
-- Available files: ${fileList.join(', ')}
+		// project structure from repo map
+		if (ctx.repoMap) {
+			const files = ctx.repoMap.files.slice(0, 20).map((f) => f.path).join(', ');
+			parts.push(`\nProject: ${ctx.repoMap.count} files, ${ctx.repoMap.totalSymbols} symbols`);
+			parts.push(`Files: ${files}`);
+		}
 
-You can help the user with coding questions about their project. Keep responses concise and helpful.`;
+		// relevant code locations from vector search
+		if (ctx.chunks.length > 0) {
+			parts.push('\nRelevant code:');
+			for (const chunk of ctx.chunks) {
+				const name = chunk.symbolName || 'module';
+				parts.push(`- ${chunk.filePath}:${chunk.lineStart}-${chunk.lineEnd} [${chunk.kind}] ${name}`);
+			}
+		}
+
+		// symbol definitions from d1
+		if (ctx.symbols.length > 0) {
+			parts.push('\nSymbol definitions:');
+			for (const sym of ctx.symbols) {
+				parts.push(`- ${sym.kind} ${sym.name}: ${sym.signature}`);
+			}
+		}
+
+		return parts.join('\n');
 	}
 
-	private buildFallbackResponse(userMessage: string, context: ProjectContext): string {
-		const fileCount = Object.keys(context.files).length;
-		const fileList = Object.keys(context.files).slice(0, 5).join(', ');
+	private buildFallbackResponse(userMessage: string, ctx: RetrievalContext): string {
+		const fileCount = ctx.repoMap?.count || 0;
+		const files = ctx.repoMap?.files.slice(0, 3).map((f) => f.path).join(', ') || 'none';
 
-		return `I can see your project has ${fileCount} files including: ${fileList}. Regarding "${userMessage}" - I'm having trouble with AI processing right now, but I'd be happy to help you analyze your code!`;
+		return `I can see ${fileCount} files (${files}). Regarding "${userMessage}" - I'm having trouble with AI processing, but I can help analyze your code!`;
 	}
 }

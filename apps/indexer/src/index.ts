@@ -79,18 +79,30 @@ function chunkFile(parsed: ParsedFile, content: string): CodeChunk[] {
 	const lines = content.split('\n');
 	const chunks: CodeChunk[] = [];
 
-	// imports chunk
+	// imports chunk - find actual line numbers
 	if (parsed.imports.length > 0) {
-		const importLines = lines.filter((l) => /^(import|from|const.*require)/.test(l.trim()));
-		if (importLines.length > 0) {
+		const importPattern = /^(import|from|const.*require)/;
+		let firstImport = -1;
+		let lastImport = -1;
+		const importContent: string[] = [];
+
+		for (let i = 0; i < lines.length; i++) {
+			if (importPattern.test(lines[i].trim())) {
+				if (firstImport === -1) firstImport = i + 1;
+				lastImport = i + 1;
+				importContent.push(lines[i]);
+			}
+		}
+
+		if (importContent.length > 0) {
 			chunks.push({
 				id: `${parsed.path}::imports`,
 				filePath: parsed.path,
 				symbolName: null,
 				kind: 'imports',
-				content: importLines.join('\n'),
-				lineStart: 1,
-				lineEnd: importLines.length,
+				content: importContent.join('\n'),
+				lineStart: firstImport,
+				lineEnd: lastImport,
 				context: `imports from ${parsed.path}`,
 			});
 		}

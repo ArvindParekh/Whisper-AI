@@ -1,15 +1,18 @@
 import { RealtimeAgent, TextComponent, RealtimeKitTransport, DeepgramSTT, ElevenLabsTTS } from '@cloudflare/realtime-agents';
 import { AIService } from '../services/AIService';
+import { RetrievalService } from '../services/RetrievalService';
 import { StateManagerService } from '../services/StateManagerService';
 import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from '@whisper/shared/types/watcher';
 
 class WhisperTextProcessor extends TextComponent {
 	private aiService: AIService;
+	private retrievalService: RetrievalService;
 	private stateManagerService: StateManagerService;
 
 	constructor(env: Env, stateManagerService: StateManagerService) {
 		super();
 		this.aiService = new AIService(env);
+		this.retrievalService = new RetrievalService(env);
 		this.stateManagerService = stateManagerService;
 	}
 
@@ -17,7 +20,7 @@ class WhisperTextProcessor extends TextComponent {
 		if (!text?.trim()) return;
 		console.log(`[Agent] User: "${text}"`);
 
-		// Echo command for testing
+		// echo command for testing
 		if (text.toLowerCase().startsWith('echo ')) {
 			const echoText = text.slice(5);
 			console.log(`[Agent] Echo: "${echoText}"`);
@@ -26,9 +29,12 @@ class WhisperTextProcessor extends TextComponent {
 		}
 
 		try {
-			const context = await this.stateManagerService.getProjectContext();
+			const sessionId = await this.stateManagerService.getSessionId();
+
+			
+			const context = await this.retrievalService.retrieveContext(text, sessionId); // retrieve relevant context from vectorize/d1/kv
 			const aiResponse = await this.aiService.generateResponse(text, context);
-			console.log(`[Agent] Response: "${aiResponse}"`);
+			console.log(`[Agent] Response: "${aiResponse.slice(0, 100)}..."`);
 			reply(aiResponse);
 
 			await this.stateManagerService.addConversationMessage('user', text);
@@ -48,7 +54,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		this.stateManagerService = new StateManagerService(ctx);
 	}
 
-	// Session state methods
+	// session state methods
 	async syncFile(
 		sessionId: string,
 		filePath: string,
@@ -92,7 +98,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		}
 	}
 
-	// Voice/meeting methods
+	// voice/meeting methods
 	async init(
 		agentId: string,
 		meetingId: string,

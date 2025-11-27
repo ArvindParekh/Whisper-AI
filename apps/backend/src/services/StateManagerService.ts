@@ -189,4 +189,9 @@ export class StateManagerService {
 		await this.ctx.storage.delete('sessionState');
 		this.sessionState = null;
 	}
+
+	async getSessionId(): Promise<string> {
+		const state = await this.ensureSessionState();
+		return state.sessionId;
+	}
 }

@@ -184,18 +184,15 @@ function parseTypescript(path: string, language: string, lines: string[]): Parse
 			const methodMatch = trimmed.match(/^(?:async\s+)?(?:private\s+|public\s+|protected\s+)?(\w+)\s*\(/);
 			if (methodMatch && !trimmed.startsWith('if') && !trimmed.startsWith('for') && !trimmed.startsWith('while')) {
 				const name = methodMatch[1];
-				if (name !== 'constructor' || true) {
-					// include constructor
-					const endLine = findBlockEnd(lines, i);
-					symbols.push({
-						name,
-						kind: 'method',
-						signature: extractSignature(trimmed),
-						lineStart: lineNum,
-						lineEnd: endLine,
-						parent: currentClass,
-					});
-				}
+				const endLine = findBlockEnd(lines, i);
+				symbols.push({
+					name,
+					kind: 'method',
+					signature: extractSignature(trimmed),
+					lineStart: lineNum,
+					lineEnd: endLine,
+					parent: currentClass,
+				});
 			}
 		}
 	}
