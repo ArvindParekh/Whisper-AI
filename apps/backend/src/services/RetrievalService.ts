@@ -1,3 +1,4 @@
+import type { FocusContext } from '@whisper/shared/types/watcher';
 // retrieval service - fetches relevant context from vectorize, d1, kv
 // all queries scoped by sessionId for data isolation
 
@@ -52,13 +53,28 @@ export class RetrievalService {
 		this.env = env;
 	}
 
-	async retrieveContext(query: string, sessionId: string): Promise<RetrievalContext> {
+	async retrieveContext(query: string, sessionId: string, focusContext?: FocusContext): Promise<RetrievalContext> {
 		const [chunks, repoMap] = await Promise.all([this.searchVectorize(query, sessionId), this.getRepoMap(sessionId)]);
 
 		// extract potential symbol names from query for d1 lookup
 		const symbols = await this.lookupMentionedSymbols(query, sessionId);
 
+		console.log(`[Retrieval] SessionID: ${sessionId} | Found ${chunks.length} chunks, repoMap: ${repoMap ? repoMap.count + ' files (' + repoMap.files.map(f => f.path).join(', ') + ')' : 'null'}, ${symbols.length} symbols`);
 		return { chunks, repoMap, symbols };
+	}
+
+	// tool methods used by the agentic loop
+	async searchCode(query: string, sessionId: string): Promise<string> {
+		const chunks = await this.searchVectorize(query, sessionId);
+		return chunks
+			.map((c) => `${c.filePath}:${c.lineStart}-${c.lineEnd}\n${c.content}`)
+			.join('\n\n');
+	}
+
+	async listFiles(sessionId: string): Promise<string> {
+		const repoMap = await this.getRepoMap(sessionId);
+		if (!repoMap) return 'No files found.';
+		return repoMap.files.map((f) => f.path).join('\\n');
 	}
 
 	private async searchVectorize(query: string, sessionId: string): Promise<CodeChunk[]> {

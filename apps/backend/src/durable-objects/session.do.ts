@@ -2,18 +2,24 @@ import { RealtimeAgent, TextComponent, RealtimeKitTransport, DeepgramSTT, Eleven
 import { AIService } from '../services/AIService';
 import { RetrievalService } from '../services/RetrievalService';
 import { StateManagerService } from '../services/StateManagerService';
-import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody } from '@whisper/shared/types/watcher';
+import type { ConversationMessage, ProjectContext, SessionStats, syncFileType, syncFileResponseBody, FocusContext } from '@whisper/shared/types/watcher';
 
 class WhisperTextProcessor extends TextComponent {
 	private aiService: AIService;
 	private retrievalService: RetrievalService;
 	private stateManagerService: StateManagerService;
+	private currentFocus?: FocusContext;
 
 	constructor(env: Env, stateManagerService: StateManagerService) {
 		super();
-		this.aiService = new AIService(env);
-		this.retrievalService = new RetrievalService(env);
 		this.stateManagerService = stateManagerService;
+		this.retrievalService = new RetrievalService(env);
+		this.aiService = new AIService(env, this.retrievalService, this.stateManagerService);
+	}
+
+	updateFocus(focus: FocusContext) {
+		this.currentFocus = focus;
+		console.log(`[Agent] Focus updated: ${focus.filePath} (L${focus.cursorLine})`);
 	}
 
 	async onTranscript(text: string, reply: (text: string) => void) {
@@ -30,9 +36,10 @@ class WhisperTextProcessor extends TextComponent {
 
 		try {
 			const sessionId = await this.stateManagerService.getSessionId();
+			console.log(`[Agent] Using SessionID: ${sessionId}`);
 
-			const context = await this.retrievalService.retrieveContext(text, sessionId); // retrieve relevant context from vectorize/d1/kv
-			const aiResponse = await this.aiService.generateResponse(text, context);
+			const context = await this.retrievalService.retrieveContext(text, sessionId, this.currentFocus); // retrieve relevant context from vectorize/d1/kv
+			const aiResponse = await this.aiService.generateResponse(text, context, sessionId, this.currentFocus);
 			console.log(`[Agent] Response: "${aiResponse.slice(0, 100)}..."`);
 			reply(aiResponse);
 
@@ -47,6 +54,7 @@ class WhisperTextProcessor extends TextComponent {
 
 export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 	private stateManagerService: StateManagerService;
+	private textProcessor?: WhisperTextProcessor;
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
@@ -65,6 +73,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 
 		// send to indexer - fire and forget
 		if (type !== 'delete' && this.env.INDEXER_WORKER_URL) {
+			console.log(`[DO] Sending ${filePath} to indexer at ${this.env.INDEXER_WORKER_URL}`);
 			fetch(`${this.env.INDEXER_WORKER_URL}/index`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -75,8 +84,11 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 			})
 				.then(async (resp) => {
 					await resp.body?.cancel();
+					if (!resp.ok) console.error(`[DO] Indexer returned ${resp.status}`);
 				})
 				.catch((err) => console.error(`[DO] Indexer error for ${filePath}:`, err));
+		} else {
+			console.log(`[DO] Skipping indexer for ${filePath} (URL: ${this.env.INDEXER_WORKER_URL})`);
 		}
 
 		return result;
@@ -98,6 +110,12 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		return this.stateManagerService.clearSession();
 	}
 
+	async updateFocus(focus: FocusContext): Promise<void> {
+		if (this.textProcessor) {
+			this.textProcessor.updateFocus(focus);
+		}
+	}
+
 	// voice/meeting methods
 	async init(
 		agentId: string,
@@ -110,14 +128,14 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		if (!this.env.DEEPGRAM_API_KEY) throw new Error('DEEPGRAM_API_KEY not set');
 		if (!this.env.ELEVENLABS_API_KEY) throw new Error('ELEVENLABS_API_KEY not set');
 
-		const textProcessor = new WhisperTextProcessor(this.env, this.stateManagerService);
+		this.textProcessor = new WhisperTextProcessor(this.env, this.stateManagerService);
 		const rtkTransport = new RealtimeKitTransport(meetingId, authToken);
 
 		await this.initPipeline(
 			[
 				rtkTransport,
 				new DeepgramSTT(this.env.DEEPGRAM_API_KEY),
-				textProcessor,
+				this.textProcessor,
 				new ElevenLabsTTS(
 					this.env.ELEVENLABS_API_KEY,
 					(this.env as any).ELEVENLABS_VOICE_ID ? { voice_id: (this.env as any).ELEVENLABS_VOICE_ID } : undefined,
@@ -135,7 +153,7 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		meeting.participants.joined.on('participantJoined', async (participant) => {
 			console.log(`[Agent] ${participant.name} joined`);
 			try {
-				await textProcessor.speak(`Hello ${participant.name || 'there'}, I am ready.`);
+				await this.textProcessor?.speak(`Hello ${participant.name || 'there'}, I am ready.`);
 			} catch (err) {
 				console.error('[Agent] Greeting error:', err);
 			}

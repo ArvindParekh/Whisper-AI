@@ -140,6 +140,12 @@ export class StateManagerService {
 		};
 	}
 
+	async getFile(path: string): Promise<string | null> {
+		const state = await this.ensureSessionState();
+		const file = state.files.get(path);
+		return file ? file.content : null;
+	}
+
 	async addConversationMessage(type: 'user' | 'assistant', content: string, metadata?: Record<string, any>): Promise<void> {
 		const state = await this.ensureSessionState();
 
