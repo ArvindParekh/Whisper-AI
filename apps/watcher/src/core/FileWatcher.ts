@@ -89,7 +89,7 @@ export class FileWatcher {
 
     try {
       const allFiles = this.getAllFiles(this.baseDir);
-      this.logger.info(`Found ${allFiles.length} files to sync`);
+      this.logger.succeedSpinner(`Synced all ${allFiles.length} files`);
 
       await this.fileSyncer.syncBatch(allFiles, "add");
     } catch (error) {
@@ -122,6 +122,15 @@ export class FileWatcher {
   ): Promise<void> {
     try {
       await this.fileSyncer.syncFile(filePath, type);
+
+      // if file modified, send updated focus context (proxy for user attention)
+      if (type === "change" || type === "add") {
+        const content = fs.readFileSync(
+          path.join(this.baseDir, filePath),
+          "utf8",
+        );
+        await this.fileSyncer.sendFocusUpdate(filePath, content);
+      }
     } catch (error) {
       this.logger.error(`Error handling ${type} for ${filePath}`, error);
     }

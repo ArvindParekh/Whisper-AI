@@ -31,3 +31,14 @@ export interface ConversationMessage {
 export interface ProjectContext {
   files: Record<string, { content: string; lastModified: number }>;
 }
+
+export interface FocusContext {
+  filePath: string;
+  content: string;
+  cursorLine: number;
+  cursorColumn: number;
+  selectionStartLine?: number;
+  selectionEndLine?: number;
+  selectionContent?: string;
+  lastActive?: number;
+}

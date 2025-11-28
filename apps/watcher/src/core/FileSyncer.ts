@@ -3,6 +3,7 @@ import type {
   syncFileRequestBody,
   syncFileResponseBody,
   syncFileType,
+  FocusContext,
 } from "@whisper/shared/types/watcher";
 import fs from "fs";
 import path from "path";
@@ -101,5 +102,27 @@ export class FileSyncer {
     }
 
     this.logger.succeedSpinner(`Synced all ${files.length} files`);
+  }
+  async sendFocusUpdate(filePath: string, content: string): Promise<void> {
+    try {
+      const focus: FocusContext = {
+        filePath,
+        content,
+        cursorLine: 0, // TODO: chokidar doesn't provide cursor position - i'd need to make my own vs code extension for this
+        cursorColumn: 0,
+        lastActive: Date.now(),
+      };
+
+      await axios.post(`${this.workerUrl}/api/focus`, {
+        sessionId: this.sessionId,
+        focus,
+      });
+
+      this.logger.info(`Sent focus update for ${filePath}`);
+    } catch (error) {
+      this.logger.warn(
+        `Failed to send focus update for ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
   }
 }
