@@ -31,7 +31,6 @@ class WhisperTextProcessor extends TextComponent {
 		try {
 			const sessionId = await this.stateManagerService.getSessionId();
 
-			
 			const context = await this.retrievalService.retrieveContext(text, sessionId); // retrieve relevant context from vectorize/d1/kv
 			const aiResponse = await this.aiService.generateResponse(text, context);
 			console.log(`[Agent] Response: "${aiResponse.slice(0, 100)}..."`);
@@ -62,7 +61,25 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 		type: syncFileType,
 		timestamp: number,
 	): Promise<syncFileResponseBody> {
-		return this.stateManagerService.syncFile(sessionId, filePath, fileContent, type, timestamp);
+		const result = await this.stateManagerService.syncFile(sessionId, filePath, fileContent, type, timestamp);
+
+		// send to indexer - fire and forget
+		if (type !== 'delete' && this.env.INDEXER_WORKER_URL) {
+			fetch(`${this.env.INDEXER_WORKER_URL}/index`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					sessionId,
+					files: [{ path: filePath, content: fileContent }],
+				}),
+			})
+				.then(async (resp) => {
+					await resp.body?.cancel();
+				})
+				.catch((err) => console.error(`[DO] Indexer error for ${filePath}:`, err));
+		}
+
+		return result;
 	}
 
 	async getProjectContext(): Promise<ProjectContext> {
@@ -79,23 +96,6 @@ export class WhisperSessionDurableObject extends RealtimeAgent<Env> {
 
 	async clearSession(): Promise<void> {
 		return this.stateManagerService.clearSession();
-	}
-
-	async alarm(): Promise<void> {
-		const batch = await this.stateManagerService.alarm();
-		if (!batch) return;
-
-		// send to indexer worker - fire and forget
-		try {
-			await fetch(`${this.env.INDEXER_WORKER_URL}/index`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(batch),
-			});
-			console.log(`[DO] Sent ${batch.files.length} files to indexer`);
-		} catch (err) {
-			console.error('[DO] Failed to send to indexer:', err);
-		}
 	}
 
 	// voice/meeting methods

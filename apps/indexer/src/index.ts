@@ -152,8 +152,27 @@ function chunkFile(parsed: ParsedFile, content: string): CodeChunk[] {
 	return chunks;
 }
 
+// create short hash for vector IDs (max 64 bytes)
+function shortHash(input: string): string {
+	let hash = 0;
+	for (let i = 0; i < input.length; i++) {
+		const char = input.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash;
+	}
+	return Math.abs(hash).toString(36);
+}
+
+function makeVectorId(sessionId: string, chunkId: string): string {
+	// sessionId is 32 chars, we have 64 max, so ~30 chars for chunk part
+	const shortSession = sessionId.slice(0, 16);
+	const chunkHash = shortHash(chunkId);
+	return `${shortSession}_${chunkHash}_${chunkId.slice(-20)}`.slice(0, 64);
+}
+
 // embed chunks and store in vectorize
 async function storeVectors(env: Env, sessionId: string, chunks: CodeChunk[]): Promise<void> {
+	if (chunks.length === 0) return;
 	const BATCH_SIZE = 20;
 
 	for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
@@ -164,7 +183,7 @@ async function storeVectors(env: Env, sessionId: string, chunks: CodeChunk[]): P
 			const result = (await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: texts })) as { data: number[][] };
 
 			const vectors = batch.map((chunk, idx) => ({
-				id: `${sessionId}::${chunk.id}`,
+				id: makeVectorId(sessionId, chunk.id),
 				values: result.data[idx],
 				metadata: {
 					sessionId,
@@ -185,9 +204,13 @@ async function storeVectors(env: Env, sessionId: string, chunks: CodeChunk[]): P
 
 // store symbols in d1
 async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): Promise<void> {
+	const totalSymbols = parsed.reduce((n, f) => n + f.symbols.length, 0);
+	if (totalSymbols === 0) return;
+
 	try {
-		// ensure table exists
-		await env.DB.exec(`
+		// ensure table exists 
+		await env.DB.prepare(
+			`
 			CREATE TABLE IF NOT EXISTS symbols (
 				id TEXT PRIMARY KEY,
 				session_id TEXT NOT NULL,
@@ -198,17 +221,19 @@ async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): 
 				line_start INTEGER,
 				line_end INTEGER,
 				parent TEXT
-			);
-			CREATE INDEX IF NOT EXISTS idx_session ON symbols(session_id);
-			CREATE INDEX IF NOT EXISTS idx_name ON symbols(name);
-		`);
+			)
+		`,
+		).run();
+
+		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_session ON symbols(session_id)').run();
+		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_name ON symbols(name)').run();
 
 		// clear old data for this session
 		await env.DB.prepare('DELETE FROM symbols WHERE session_id = ?').bind(sessionId).run();
 
 		// batch insert
 		const stmt = env.DB.prepare(`
-			INSERT INTO symbols (id, session_id, file_path, name, kind, signature, line_start, line_end, parent)
+			INSERT OR REPLACE INTO symbols (id, session_id, file_path, name, kind, signature, line_start, line_end, parent)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`);
 

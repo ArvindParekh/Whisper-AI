@@ -87,15 +87,7 @@ export class StateManagerService {
 					throw new Error(`Unknown sync type: ${type}`);
 			}
 
-			// enqueue it for indexing
-			const pending = this.sessionState?.pending || [];
-			if (!pending.includes(filePath)) {
-				pending.push(filePath);
-			}
-
 			await this.saveSessionState();
-
-			await this.ctx.storage.setAlarm(Date.now() + 2000); // fire alarm after 2s - debounce
 
 			return {
 				success: true,
