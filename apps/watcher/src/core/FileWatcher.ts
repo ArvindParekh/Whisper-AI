@@ -121,15 +121,32 @@ export class FileWatcher {
     filePath: string,
     type: syncFileType,
   ): Promise<void> {
+    // skipping ignored paths
+    if (this.shouldIgnore(filePath)) {
+      return;
+    }
+
+    const fullPath = path.join(this.baseDir, filePath);
+
+    // skipping directories
+    try {
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        return;
+      }
+    } catch {
+      // file might not exist for delete events
+      if (type !== "delete") {
+        return;
+      }
+    }
+
     try {
       await this.fileSyncer.syncFile(filePath, type);
 
       // if file modified, send updated focus context (proxy for user attention)
       if (type === "change" || type === "add") {
-        const content = fs.readFileSync(
-          path.join(this.baseDir, filePath),
-          "utf8",
-        );
+        const content = fs.readFileSync(fullPath, "utf8");
         await this.fileSyncer.sendFocusUpdate(filePath, content);
       }
     } catch (error) {
