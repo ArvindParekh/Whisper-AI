@@ -5,6 +5,7 @@ import { corsMiddleware } from '../middleware/cors';
 import { apiCheckToken, apiCliConnected, apiRegisterToken } from './routes/token.route';
 import { agentsInternalRoute, deinitRoute, initRoute } from './routes/cloudflareInternal.route';
 import { apiCreateMeeting, apiCreateParticipant } from './routes/meeting.route';
+import { apiUpdateFocus } from './routes/focus.route';
 
 export { WhisperSessionDurableObject };
 
@@ -75,6 +76,11 @@ export default {
 
 				case '/api/create-participant': {
 					const response = await apiCreateParticipant(request, env, ctx);
+					return corsMiddleware(response);
+				}
+
+				case '/api/focus': {
+					const response = await apiUpdateFocus(request, env, ctx);
 					return corsMiddleware(response);
 				}
 
