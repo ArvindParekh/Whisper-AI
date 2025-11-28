@@ -96,13 +96,36 @@ export class RetrievalService {
 
 	private async getRepoMap(sessionId: string): Promise<RepoMap | null> {
 		try {
-			const key = `${sessionId}::repo_map`;
-			const data = await this.env.CODE_SUMMARIES.get(key);
-			if (!data) return null;
+			// const key = `${sessionId}::repo_map`;
+			// const data = await this.env.CODE_SUMMARIES.get(key);
+			// if (!data) return nsull;
+			// build repo map from D1 for now
+			const result = await this.env.SYMBOLS_DB.prepare(`SELECT file_path, name, kind FROM symbols WHERE session_id = ?`)
+				.bind(sessionId)
+				.all();
 
-			return JSON.parse(data) as RepoMap;
+			if (!result.results || result.results.length === 0) return null;
+
+			// group by file
+			const fileMap = new Map<string, { path: string; language: string; symbols: string[] }>();
+			for (const row of result.results) {
+				const filePath = row.file_path as string;
+				if (!fileMap.has(filePath)) {
+					const ext = filePath.split('.').pop() || '';
+					const language = { ts: 'typescript', js: 'javascript', tsx: 'typescript', jsx: 'javascript', py: 'python' }[ext] || ext;
+					fileMap.set(filePath, { path: filePath, language, symbols: [] });
+				}
+				fileMap.get(filePath)!.symbols.push(`${row.kind}:${row.name}`);
+			}
+
+			const files = Array.from(fileMap.values());
+			return {
+				files,
+				count: files.length,
+				totalSymbols: result.results.length,
+			};
 		} catch (err) {
-			console.error('[retrieval] kv fetch failed:', err);
+			console.error('[retrieval] d1 repo map failed:', err);
 			return null;
 		}
 	}

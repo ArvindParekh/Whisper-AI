@@ -66,7 +66,7 @@ async function indexFiles(env: Env, req: IndexRequest): Promise<void> {
 		console.log(`[indexer] created ${chunks.length} chunks`);
 
 		// step 3: embed and store (process parallelly)
-		await Promise.all([storeVectors(env, sessionId, chunks), storeSymbols(env, sessionId, parsed), storeRepoMap(env, sessionId, parsed)]);
+		await Promise.all([storeVectors(env, sessionId, chunks), storeSymbols(env, sessionId, parsed)]);
 
 		console.log(`[indexer] done for session ${sessionId}`);
 	} catch (err) {
@@ -208,7 +208,7 @@ async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): 
 	if (totalSymbols === 0) return;
 
 	try {
-		// ensure table exists 
+		// ensure table exists
 		await env.DB.prepare(
 			`
 			CREATE TABLE IF NOT EXISTS symbols (
@@ -227,9 +227,12 @@ async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): 
 
 		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_session ON symbols(session_id)').run();
 		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_name ON symbols(name)').run();
+		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_file ON symbols(session_id, file_path)').run();
 
-		// clear old data for this session
-		await env.DB.prepare('DELETE FROM symbols WHERE session_id = ?').bind(sessionId).run();
+		// clear old symbols only for files being updated
+		for (const file of parsed) {
+			await env.DB.prepare('DELETE FROM symbols WHERE session_id = ? AND file_path = ?').bind(sessionId, file.path).run();
+		}
 
 		// batch insert
 		const stmt = env.DB.prepare(`
@@ -266,18 +269,40 @@ async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): 
 
 // store repo map in kv
 async function storeRepoMap(env: Env, sessionId: string, parsed: ParsedFile[]): Promise<void> {
-	const repoMap = parsed.map((f) => ({
+	if (parsed.length === 0) return; // don't update if nothing parsed
+
+	const key = `${sessionId}::repo_map`;
+
+	let existingFiles: { path: string; language: string; symbols: string[] }[] = [];
+	try {
+		const existing = await env.SUMMARIES.get(key);
+		if (existing) {
+			const data = JSON.parse(existing);
+			existingFiles = data.files || [];
+		}
+	} catch {
+		// ignore parse errors - start fresh
+	}
+
+	const newFiles = parsed.map((f) => ({
 		path: f.path,
 		language: f.language,
 		symbols: f.symbols.map((s) => `${s.kind}:${s.name}`),
 	}));
 
+	const fileMap = new Map(existingFiles.map((f) => [f.path, f]));
+	for (const file of newFiles) {
+		fileMap.set(file.path, file);
+	}
+
+	const mergedFiles = Array.from(fileMap.values());
+
 	await env.SUMMARIES.put(
-		`${sessionId}::repo_map`,
+		key,
 		JSON.stringify({
-			files: repoMap,
-			count: repoMap.length,
-			totalSymbols: parsed.reduce((n, f) => n + f.symbols.length, 0),
+			files: mergedFiles,
+			count: mergedFiles.length,
+			totalSymbols: mergedFiles.reduce((n, f) => n + f.symbols.length, 0),
 			ts: Date.now(),
 		}),
 		{ expirationTtl: 86400 * 7 },
