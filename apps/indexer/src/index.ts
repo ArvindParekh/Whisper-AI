@@ -66,7 +66,11 @@ async function indexFiles(env: Env, req: IndexRequest): Promise<void> {
 		console.log(`[indexer] created ${chunks.length} chunks`);
 
 		// step 3: embed and store (process parallelly)
-		await Promise.all([storeVectors(env, sessionId, chunks), storeSymbols(env, sessionId, parsed)]);
+		await Promise.all([
+			storeVectors(env, sessionId, chunks),
+			storeSymbols(env, sessionId, parsed),
+			storeChunkContent(env, sessionId, chunks),
+		]);
 
 		console.log(`[indexer] done for session ${sessionId}`);
 	} catch (err) {
@@ -187,6 +191,7 @@ async function storeVectors(env: Env, sessionId: string, chunks: CodeChunk[]): P
 				values: result.data[idx],
 				metadata: {
 					sessionId,
+					chunkId: chunk.id,
 					filePath: chunk.filePath,
 					symbolName: chunk.symbolName || '',
 					kind: chunk.kind,
@@ -264,6 +269,47 @@ async function storeSymbols(env: Env, sessionId: string, parsed: ParsedFile[]): 
 		}
 	} catch (err) {
 		console.error(`[indexer] d1 store failed:`, err);
+	}
+}
+
+async function storeChunkContent(env: Env, sessionId: string, chunks: CodeChunk[]): Promise<void> {
+	if (chunks.length === 0) return;
+
+	try {
+		await env.DB.prepare(
+			`
+		CREATE TABLE IF NOT EXISTS code_chunks (
+		  id TEXT PRIMARY KEY,
+		  session_id TEXT NOT NULL,
+		  file_path TEXT NOT NULL,
+		  symbol_name TEXT,
+		  kind TEXT NOT NULL,
+		  line_start INTEGER,
+		  line_end INTEGER,
+		  content TEXT NOT NULL
+		)
+	  `,
+		).run();
+
+		await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_chunks_session ON code_chunks(session_id)').run();
+
+		// clear old chunks for files being updated
+		const filePaths = [...new Set(chunks.map((c) => c.filePath))];
+		for (const fp of filePaths) {
+			await env.DB.prepare('DELETE FROM code_chunks WHERE session_id = ? AND file_path = ?').bind(sessionId, fp).run();
+		}
+
+		// batch insert
+		const stmt = env.DB.prepare(`
+		INSERT INTO code_chunks (id, session_id, file_path, symbol_name, kind, line_start, line_end, content)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	  `);
+
+		await env.DB.batch(chunks.map((c) => stmt.bind(c.id, sessionId, c.filePath, c.symbolName, c.kind, c.lineStart, c.lineEnd, c.content)));
+
+		console.log(`[indexer] stored ${chunks.length} chunks in D1`);
+	} catch (err) {
+		console.error('[indexer] chunk storage failed:', err);
 	}
 }
 

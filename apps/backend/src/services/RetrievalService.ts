@@ -77,6 +77,25 @@ export class RetrievalService {
 				returnMetadata: 'all',
 			});
 
+			if (results.matches.length === 0) return [];
+
+			// fetch content from d1
+			const chunkIds = results.matches.map((m) => (m.metadata as any)?.chunkId).filter(Boolean);
+
+			if (chunkIds.length === 0) return [];
+
+			const placeholders = chunkIds.map(() => '?').join(',');
+			const contentResult = await this.env.SYMBOLS_DB.prepare(
+				`
+      SELECT id, content FROM code_chunks 
+      WHERE session_id = ? AND id IN (${placeholders})
+    `,
+			)
+				.bind(sessionId, ...chunkIds)
+				.all();
+
+			const contentMap = new Map((contentResult.results || []).map((r: any) => [r.id, r.content]));
+
 			return results.matches.map((match) => {
 				const meta = match.metadata as VectorMatch['metadata'];
 				return {
@@ -86,6 +105,7 @@ export class RetrievalService {
 					lineStart: meta?.lineStart || 0,
 					lineEnd: meta?.lineEnd || 0,
 					score: match.score,
+					content: contentMap.get(match.id) || undefined,
 				};
 			});
 		} catch (err) {
@@ -259,16 +279,20 @@ export class RetrievalService {
 
 		// relevant code chunks
 		if (ctx.chunks.length > 0) {
-			const chunkList = ctx.chunks
+			const codeBlocks = ctx.chunks
+				.filter((c) => c.content)
 				.map((c) => {
-					const name = c.symbolName || 'module';
-					return `  ${c.filePath}:${c.lineStart}-${c.lineEnd} [${c.kind}] ${name}`;
+					const header = `// ${c.filePath}:${c.lineStart}-${c.lineEnd} [${c.kind}] ${c.symbolName || 'module'}`;
+					return `${header}\n${c.content}`;
 				})
-				.join('\n');
-			parts.push(`Relevant code locations:\n${chunkList}`);
+				.join('\n\n---\n\n');
+
+			if (codeBlocks) {
+				parts.push(`Relevant code:\n\n${codeBlocks}`);
+			}
 		}
 
-		// symbol signatures
+		// symbol signatures - for additional context now
 		if (ctx.symbols.length > 0) {
 			const sigList = ctx.symbols.map((s) => `  ${s.kind} ${s.name}: ${s.signature}`).join('\n');
 			parts.push(`Symbol definitions:\n${sigList}`);

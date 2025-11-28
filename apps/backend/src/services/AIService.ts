@@ -24,7 +24,7 @@ export class AIService {
 			const startTime = Date.now();
 
 			console.log('[AIService] Starting AI.run...');
-			const aiPromise = this.env.AI.run('@cf/meta/llama-3.1-8b-instruct-awq', {
+			const aiPromise = this.env.AI.run('@cf/google/gemma-7b-it-lora', {
 				messages: [
 					{ role: 'system', content: systemPrompt },
 					{ role: 'user', content: userMessage },
@@ -51,32 +51,33 @@ export class AIService {
 	private buildSystemPrompt(ctx: RetrievalContext): string {
 		const parts: string[] = [];
 
-		parts.push('You are Whisper, an AI pair programming assistant. Answer concisely based on the context provided.');
+		parts.push('You are Whisper, an AI pair programming assistant. Answer concisely based on the code context provided.');
 
 		// project structure from repo map
 		if (ctx.repoMap?.files) {
 			const files = ctx.repoMap.files
-				.slice(0, 20)
+				.slice(0, 15)
 				.map((f) => f.path)
 				.join(', ');
 			parts.push(`\nProject: ${ctx.repoMap.count} files, ${ctx.repoMap.totalSymbols} symbols`);
 			parts.push(`Files: ${files}`);
 		}
 
-		// relevant code locations from vector search
-		if (ctx.chunks.length > 0) {
-			parts.push('\nRelevant code:');
-			for (const chunk of ctx.chunks) {
-				const name = chunk.symbolName || 'module';
-				parts.push(`- ${chunk.filePath}:${chunk.lineStart}-${chunk.lineEnd} [${chunk.kind}] ${name}`);
+		// actual code content from vector search
+		const chunksWithContent = ctx.chunks.filter((c) => c.content);
+		if (chunksWithContent.length > 0) {
+			parts.push('\n--- RELEVANT CODE ---');
+			for (const chunk of chunksWithContent.slice(0, 3)) {
+				const header = `// ${chunk.filePath}:${chunk.lineStart}-${chunk.lineEnd} [${chunk.kind}] ${chunk.symbolName || 'module'}`;
+				parts.push(`\n${header}\n${chunk.content}`);
 			}
 		}
 
-		// symbol definitions from d1
+		// symbol signatures for additional context
 		if (ctx.symbols.length > 0) {
-			parts.push('\nSymbol definitions:');
-			for (const sym of ctx.symbols) {
-				parts.push(`- ${sym.kind} ${sym.name}: ${sym.signature}`);
+			parts.push('\n--- SYMBOL SIGNATURES ---');
+			for (const sym of ctx.symbols.slice(0, 5)) {
+				parts.push(`${sym.kind} ${sym.name}: ${sym.signature}`);
 			}
 		}
 
