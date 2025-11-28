@@ -46,7 +46,8 @@ export class FileWatcher {
   }
 
   private shouldIgnore(filePath: string): boolean {
-    return IGNORED_DIRECTORIES.some((dir) => filePath.includes(dir));
+    const segments = filePath.split(path.sep);
+    return IGNORED_DIRECTORIES.some((dir) => segments.includes(dir));
   }
 
   async start(): Promise<void> {
@@ -56,7 +57,7 @@ export class FileWatcher {
       ignored: IGNORED_PATTERNS,
       persistent: true,
       ignoreInitial: true,
-      followSymlinks: true,
+      followSymlinks: false, // Don't follow symlinks into node_modules
       cwd: this.baseDir,
       awaitWriteFinish: {
         stabilityThreshold: WATCHER_CONFIG.STABILITY_THRESHOLD,

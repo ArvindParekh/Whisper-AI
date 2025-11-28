@@ -84,7 +84,7 @@ export class AIService {
 				case 'search_code':
 					return await this.retrievalService.searchCode(args, sessionId);
 				case 'list_files':
-					return await this.retrievalService.listFiles(sessionId);
+					return await this.retrievalService.listFiles(sessionId, args || undefined);
 				default:
 					return `Unknown tool: ${name}`;
 			}
@@ -113,11 +113,7 @@ export class AIService {
 		);
 
 		if (focus) {
-			parts.push(
-				'\n--- FOCUS CONTEXT ---',
-				`User is looking at: ${focus.filePath}`,
-				`Cursor: Line ${focus.cursorLine}, Column ${focus.cursorColumn}`,
-			);
+			parts.push('\n--- FOCUS CONTEXT ---', `User is looking at: ${focus.filePath}`);
 			if (focus.selectionContent) {
 				// this won't be available as long as we're using chokidar - need to shift to vscode extension for this
 				parts.push(`Selection:\n${focus.selectionContent}`);
@@ -130,7 +126,7 @@ export class AIService {
 		// project structure from repo map
 		if (ctx.repoMap?.files) {
 			const files = ctx.repoMap.files
-				.filter((f) => !f.path.includes('node_modules')) // filtering noise - chokidar is somehow syncing node_modules too even though i ignored it. todo: fix
+				.filter((f) => !f.path.includes('node_modules'))
 				.slice(0, 50)
 				.map((f) => f.path)
 				.join(', ');

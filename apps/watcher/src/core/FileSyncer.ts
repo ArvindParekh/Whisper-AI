@@ -108,8 +108,6 @@ export class FileSyncer {
       const focus: FocusContext = {
         filePath,
         content,
-        cursorLine: 0, // TODO: chokidar doesn't provide cursor position - i'd need to make my own vs code extension for this
-        cursorColumn: 0,
         lastActive: Date.now(),
       };
 

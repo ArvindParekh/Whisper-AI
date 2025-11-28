@@ -35,8 +35,8 @@ export interface ProjectContext {
 export interface FocusContext {
   filePath: string;
   content: string;
-  cursorLine: number;
-  cursorColumn: number;
+  cursorLine?: number; // make it optional for now - chokidar doesn't provide cursor position, i'd need a vscode extension for this
+  cursorColumn?: number;
   selectionStartLine?: number;
   selectionEndLine?: number;
   selectionContent?: string;

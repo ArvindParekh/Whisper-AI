@@ -59,22 +59,26 @@ export class RetrievalService {
 		// extract potential symbol names from query for d1 lookup
 		const symbols = await this.lookupMentionedSymbols(query, sessionId);
 
-		console.log(`[Retrieval] SessionID: ${sessionId} | Found ${chunks.length} chunks, repoMap: ${repoMap ? repoMap.count + ' files (' + repoMap.files.map(f => f.path).join(', ') + ')' : 'null'}, ${symbols.length} symbols`);
+		console.log(
+			`[Retrieval] SessionID: ${sessionId} | Found ${chunks.length} chunks, repoMap: ${repoMap ? repoMap.count + ' files (' + repoMap.files.map((f) => f.path).join(', ') + ')' : 'null'}, ${symbols.length} symbols`,
+		);
 		return { chunks, repoMap, symbols };
 	}
 
 	// tool methods used by the agentic loop
 	async searchCode(query: string, sessionId: string): Promise<string> {
 		const chunks = await this.searchVectorize(query, sessionId);
-		return chunks
-			.map((c) => `${c.filePath}:${c.lineStart}-${c.lineEnd}\n${c.content}`)
-			.join('\n\n');
+		return chunks.map((c) => `${c.filePath}:${c.lineStart}-${c.lineEnd}\n${c.content}`).join('\n\n');
 	}
 
-	async listFiles(sessionId: string): Promise<string> {
+	async listFiles(sessionId: string, pathFilter?: string): Promise<string> {
 		const repoMap = await this.getRepoMap(sessionId);
 		if (!repoMap) return 'No files found.';
-		return repoMap.files.map((f) => f.path).join('\\n');
+		let files = repoMap.files.map((f) => f.path);
+		if (pathFilter) {
+			files = files.filter((f) => f.startsWith(pathFilter) || f.includes(`/${pathFilter}`));
+		}
+		return files.join('\n');
 	}
 
 	private async searchVectorize(query: string, sessionId: string): Promise<CodeChunk[]> {
